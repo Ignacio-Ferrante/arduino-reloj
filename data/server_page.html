@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Configuracion del Reloj</title>
+</head>
+<body>
+  <h1>Configuracion del Reloj</h1>
+  
+  <!-- Slider de color -->
+  <h2>Color</h2>
+  <input type='range' min='0' max='255' value='{{color}}' id='colorSlider'>
+  <div id='colorVisualizer' style='width: 30px; height: 30px; display: inline-block; border: 1px solid #000;'></div>
+  <button onclick='setColor()'>Enviar</button>
+  <div id='colorValue'>{{color}}</div>
+  
+  <!-- Slider de light limit -->
+  <h2>Limite de luz</h2>
+  <input type='range' min='0' max='100' value='{{lightLimit}}' id='lightLimitSlider'>
+  <button onclick='setLightLimit()'>Enviar</button>
+  <div id='lightLimitValue'>{{lightLimit}}</div>
+
+  <!-- Slider de idle light -->
+  <h2>Idle Light</h2>
+  <input type='range' min='0' max='100' value='{{idleLight}}' id='idleLightSlider'>
+  <button onclick='setIdleLight()'>Enviar</button>
+  <div id='idleLightValue'>{{idleLight}}</div>
+
+  <!-- Slider de low light min -->
+  <h2>Low Light Min</h2>
+  <input type='range' min='1' max='255' value='{{lowLightMin}}' id='lowLightMinSlider'>
+  <button onclick='setLowLightMin()'>Enviar</button>
+  <div id='lowLightMinValue'>{{lowLightMin}}</div>
+
+  <!-- Slider de low light max -->
+  <h2>Low Light Max</h2>
+  <input type='range' min='1' max='255' value='{{lowLightMax}}' id='lowLightMaxSlider'>
+  <button onclick='setLowLightMax()'>Enviar</button>
+  <div id='lowLightMaxValue'>{{lowLightMax}}</div>
+
+  <!-- Botón de alternancia para invertir dígitos -->
+  <h2>Invertir Digitos</h2>
+  <button onclick='toggleInvertedDigits()' id="invertDigitsButton">Alternar</button>
+
+  <script>
+    var colorSlider = document.getElementById('colorSlider');
+    var colorValue = document.getElementById('colorValue');
+    var colorVisualizer = document.getElementById('colorVisualizer');
+    
+    colorSlider.oninput = function() {
+      colorValue.innerHTML = this.value;
+      updateColorVisualizer(this.value);
+    };
+    
+    function setColor() {
+      var color = colorSlider.value;
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/color?color=' + color, true);
+      xhr.send();
+    }
+
+    function updateColorVisualizer(hue) {
+      colorVisualizer.style.backgroundColor = 'hsl(' + hue*1.41 + ', 100%, 50%)';
+    }
+  
+    var lightLimitSlider = document.getElementById('lightLimitSlider');
+    var lightLimitValue = document.getElementById('lightLimitValue');
+    lightLimitSlider.oninput = function() { lightLimitValue.innerHTML = this.value; };
+  
+    function setLightLimit() {
+      var lightlimit = lightLimitSlider.value;
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/lightlimit?lightLimit=' + lightlimit, true);
+      xhr.send();
+    }
+  
+    var idleLightSlider = document.getElementById('idleLightSlider');
+    var idleLightValue = document.getElementById('idleLightValue');
+    idleLightSlider.oninput = function() { idleLightValue.innerHTML = this.value; };
+  
+    function setIdleLight() {
+      var idlelight = idleLightSlider.value;
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/idlelight?idleLight=' + idlelight, true);
+      xhr.send();
+    }
+  
+    var lowLightMinSlider = document.getElementById('lowLightMinSlider');
+    var lowLightMinValue = document.getElementById('lowLightMinValue');
+    lowLightMinSlider.oninput = function() { lowLightMinValue.innerHTML = this.value; };
+  
+    function setLowLightMin() {
+      var lowlightmin = lowLightMinSlider.value;
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/lowlightmin?lowLightMin=' + lowlightmin, true);
+      xhr.send();
+    }
+  
+    var lowLightMaxSlider = document.getElementById('lowLightMaxSlider');
+    var lowLightMaxValue = document.getElementById('lowLightMaxValue');
+    lowLightMaxSlider.oninput = function() { lowLightMaxValue.innerHTML = this.value; };
+  
+    function setLowLightMax() {
+      var lowlightmax = lowLightMaxSlider.value;
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/lowlightmax?lowLightMax=' + lowlightmax, true);
+      xhr.send();
+    }
+
+    var invertedValue = {{useInvertedDigits}};
+
+    function toggleInvertedDigits() {
+      var xhr = new XMLHttpRequest();
+      invertedValue = invertedValue === 1 ? 0 : 1;
+      xhr.open('GET', '/inverteddigits?useInvertedDigits=' + invertedValue, true);
+      xhr.send();
+      updateInvertButtonLabel(invertedValue);
+    }
+
+    function updateInvertButtonLabel(value) {
+      invertDigitsButton.innerHTML = value === 1 ? 'Desactivar' : 'Activar';
+    }
+
+    // Actualizar el texto del botón según el valor inicial
+    updateColorVisualizer(parseInt('{{color}}'));
+    updateInvertButtonLabel(parseInt('{{useInvertedDigits}}'));
+  </script>
+  
+</body>
+</html>
