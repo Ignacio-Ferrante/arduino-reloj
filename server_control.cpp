@@ -22,8 +22,6 @@ void getConfigs() {
   jsonObject["color"] = globalConfig.color;
   jsonObject["colorMode"] = globalConfig.colorMode;
   jsonObject["brightness"] = map(globalConfig.brightness, 1, 255, 1, 100);
-  jsonObject["lightLimit"] = globalConfig.lightLimit;
-  jsonObject["nightLightLimit"] = globalConfig.nightLightLimit;
   jsonObject["nightTimeRange"][0] = globalConfig.nightTimeRange[0];
   jsonObject["nightTimeRange"][1] = globalConfig.nightTimeRange[1];
   jsonObject["nightTimeRange"][2] = globalConfig.nightTimeRange[2];
@@ -64,17 +62,7 @@ void setColorMode() {
 }
 
 void setBrightness() {
-  globalConfig.brightness = map(server.arg("brightness").toInt(), 1, 100, 1, 254);
-}
-
-void setLightLimit() {
-  globalConfig.lightLimit = server.arg("lightLimit").toInt();
-  saveConfig();
-}
-
-void setNightLightLimit() {
-  globalConfig.nightLightLimit = server.arg("lightLimit").toInt();
-  saveConfig();
+  globalConfig.brightness = map(server.arg("brightness").toInt(), 1, 100, 1, 255);
 }
 
 void setNightTimeRange() {
@@ -102,8 +90,6 @@ void initServer() {
   server.on("/color", setColor);
   server.on("/colormode", setColorMode);
   server.on("/brightness", setBrightness);
-  server.on("/lightlimit", setLightLimit);
-  server.on("/nightlightlimit", setNightLightLimit);
   server.on("/nighttime", setNightTimeRange);
   server.on("/getbrightness", getbrightness);
   server.begin();

@@ -15,8 +15,6 @@ configs globalConfig = {
   .color = 17,
   .colorMode = 0,
   .brightness = 200,
-  .lightLimit = 70,
-  .nightLightLimit = 10,
   .nightTimeRange = {21, 0, 7, 0},
   .firstTime = true
 };

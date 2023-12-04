@@ -28,7 +28,7 @@ struct configs {
     int refreshVelocity;
     int useInvertedDigits;
 
-    int color, colorMode, brightness, lightLimit, nightLightLimit;
+    int color, colorMode, brightness;
 
     int nightTimeRange[4];
     bool firstTime;

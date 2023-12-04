@@ -50,15 +50,12 @@ int brightness;
 
 void updateBrightness() {
   int ligthRead = analogRead(LIGHT_SENSOR_PIN);
-  int porcentaje = map(ligthRead, 0, 1024, 0, 100);
+  int mappedBright = map(ligthRead, 0, 1024, 1, 255);
 
-  if (porcentaje > globalConfig.lightLimit)
-    brightness = 255;
-  else if (nightTime) {
-    brightness = porcentaje >= globalConfig.nightLightLimit ? map(ligthRead, 0, 1024, globalConfig.nightLightLimit, 254) : 1;
-  } else {
-    int mappedBright = map(globalConfig.brightness, 1, 254, 1, 100);
-    brightness = porcentaje > mappedBright ? map(porcentaje, 1, 100, 1, 254) : globalConfig.brightness;
+  brightness = mappedBright > globalConfig.brightness ? mappedBright : globalConfig.brightness;
+
+  if (nightTime) {
+    brightness = max(1, brightness / 3);
   }
 }
 
@@ -118,10 +115,8 @@ void showDigit(int position, int value) {
 }
 
 void printLed(int position) {
-  if (brightness == 255)
-    leds[position] = CRGB::Green;
-  else if (nightTime)
-    leds[position] = CHSV(17, 255, brightness);
+  if (nightTime)
+    leds[position] = CHSV(1, 255, brightness);
   else
     leds[position] = CHSV(globalConfig.color, 255, brightness);
 }

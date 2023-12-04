@@ -43,21 +43,9 @@
   <p style="display: inline-block;">Brillo Actual en la habitacion: <span id="currentBrightness"
       style="margin-left: 10px;">-</span></p>
 
-  <!-- Slider de light limit -->
-  <h2>Limite para extra brillo</h2>
-  <input type='range' min='1' max='100' value='1' id='lightLimitSlider'>
-  <button onclick='setLightLimit()'>Enviar</button>
-  <div id='lightLimitValue'>1</div>
-
-  <!-- Slider de light limit -->
-  <h2>Limite para extra brillo en modo noche</h2>
-  <input type='range' min='1' max='100' value='1' id='nightLightLimitSlider'>
-  <button onclick='setNightLightLimit()'>Enviar</button>
-  <div id='nightLightLimitValue'>1</div>
-
   <!-- Selector de hora de inicio -->
   <h2>Modo nocturno</h2>
-  <input type='number' min='0' max='23' value='0' id='xxxy'> :
+  <input type='number' min='0' max='23' value='0' id='startHour'> :
   <input type='number' min='0' max='59' value='0' id='startMinute'> -
   <input type='number' min='0' max='23' value='0' id='endHour'> :
   <input type='number' min='0' max='59' value='0' id='endMinute'>
@@ -75,14 +63,10 @@
     var colorSlider = document.getElementById('colorSlider');
     var colorValue = document.getElementById('colorValue');
     var colorVisualizer = document.getElementById('colorVisualizer');
-    var lightLimitSlider = document.getElementById('lightLimitSlider');
-    var lightLimitValue = document.getElementById('lightLimitValue');
-    var nightLightLimitSlider = document.getElementById('nightLightLimitSlider');
-    var nightLightLimitValue = document.getElementById('nightLightLimitValue');
     var brightSlider = document.getElementById('brightSlider');
     var brightValue = document.getElementById('brightValue');
 
-    var startHour = document.getElementById('xxxy');
+    var startHour = document.getElementById('startHour');
     var startMinute = document.getElementById('startMinute');
     var endHour = document.getElementById('endHour');
     var endMinute = document.getElementById('endMinute');
@@ -135,22 +119,6 @@
 
     function updateColorVisualizer(color) {
       colorVisualizer.style.backgroundColor = 'hsl(' + color * 1.41 + ', 100%, 50%)';
-    }
-
-    lightLimitSlider.oninput = function () { lightLimitValue.innerHTML = this.value; };
-
-    function setLightLimit() {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/lightlimit?lightLimit=' + lightLimitSlider.value, true);
-      xhr.send();
-    }
-
-    nightLightLimitSlider.oninput = function () { nightLightLimitValue.innerHTML = this.value; };
-
-    function setNightLightLimit() {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/nightlightlimit?lightLimit=' + nightLightLimitSlider.value, true);
-      xhr.send();
     }
 
     function setNightTime() {
@@ -223,14 +191,6 @@
           colorSlider.value = color;
           updateColorVisualizer(color);
           colorValue.textContent = color;
-
-          var lightLimit = parseInt(config.lightLimit);
-          lightLimitSlider.value = lightLimit;
-          lightLimitValue.textContent = lightLimit;
-
-          var nightLightLimit = parseInt(config.nightLightLimit);
-          nightLightLimitSlider.value = nightLightLimit;
-          nightLightLimitValue.textContent = nightLightLimit;
 
           var brightness = parseInt(config.brightness);
           brightSlider.value = brightness;
