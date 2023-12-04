@@ -1,8 +1,5 @@
 #include "constants.h"
 
-String ssid = "WiFi Casa 2.4";
-String password = "0102721003";
-
 ESP8266WebServer server(80);
 
 WiFiUDP ntpUDP;
@@ -10,7 +7,19 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", -3 * 3600);
 
 CRGB leds[LED_COUNT];
 
-int color = 10, brightness = 250, lightLimit = 60, idleLight = 20, lowLightMin = 1, lowLightMax = 50, useInvertedDigits = 1;
+configs globalConfig = {
+  .ssid = "WiFi Casa 2.4",
+  .password = "0102721003",
+  .refreshVelocity = 30,
+  .useInvertedDigits = 1,
+  .color = 17,
+  .colorMode = 0,
+  .brightness = 200,
+  .lightLimit = 70,
+  .nightLightLimit = 10,
+  .nightTimeRange = {21, 0, 7, 0},
+  .firstTime = true
+};
 
 int digits[10][7] = {
   { 0, 1, 1, 1, 1, 1, 1 },  // 0

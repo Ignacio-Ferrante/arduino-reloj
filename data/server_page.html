@@ -1,112 +1,164 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
+
 <head>
   <title>Configuracion del Reloj</title>
+  <style>
+    .color-static {
+      display: none;
+    }
+  </style>
 </head>
+
 <body>
   <h1>Configuracion del Reloj</h1>
-  
-  <!-- Slider de color -->
-  <h2>Color</h2>
-  <input type='range' min='0' max='255' value='{{color}}' id='colorSlider'>
-  <div id='colorVisualizer' style='width: 30px; height: 30px; display: inline-block; border: 1px solid #000;'></div>
-  <button onclick='setColor()'>Enviar</button>
-  <div id='colorValue'>{{color}}</div>
-  
+  <!-- Slider de velocidad -->
+  <h2>Velocidad</h2>
+  <input type='range' min='1' max='100' value='1' id='velocitySlider'>
+  <button onclick='setVelocity()'>Enviar</button>
+  <div id='velocityValue'>1</div>
+
+  <!-- modo de color -->
+  <label for="colorModeSelector">
+    <h2>Modo de color</h2>
+  </label>
+  <select id="colorModeSelector" onchange="setColorMode()">
+    <option value="0">Color Estatico</option>
+    <option value="1">Arcoiris</option>
+    <option value="2">Flujo</option>
+  </select>
+
+  <div class="color-static">
+    <input type='range' min='0' max='255' value='1' id='colorSlider' onchange="setColor()">
+    <div id='colorVisualizer' style='width: 30px; height: 30px; display: inline-block; border: 1px solid #000;'></div>
+    <div id='colorValue'>1</div>
+  </div>
+
+  <!-- slider brillo -->
+  <h2>Brillo</h2>
+  <input type='range' min='1' max='100' value='1' id='brightSlider' oninput='setBright()'>
+  <div id='brightValue'>1</div>
+
+  <p></p>
+  <p style="display: inline-block;">Brillo Actual en la habitacion: <span id="currentBrightness"
+      style="margin-left: 10px;">-</span></p>
+
   <!-- Slider de light limit -->
-  <h2>Limite de luz</h2>
-  <input type='range' min='0' max='100' value='{{lightLimit}}' id='lightLimitSlider'>
+  <h2>Limite para extra brillo</h2>
+  <input type='range' min='1' max='100' value='1' id='lightLimitSlider'>
   <button onclick='setLightLimit()'>Enviar</button>
-  <div id='lightLimitValue'>{{lightLimit}}</div>
+  <div id='lightLimitValue'>1</div>
 
-  <!-- Slider de idle light -->
-  <h2>Idle Light</h2>
-  <input type='range' min='0' max='100' value='{{idleLight}}' id='idleLightSlider'>
-  <button onclick='setIdleLight()'>Enviar</button>
-  <div id='idleLightValue'>{{idleLight}}</div>
+  <!-- Slider de light limit -->
+  <h2>Limite para extra brillo en modo noche</h2>
+  <input type='range' min='1' max='100' value='1' id='nightLightLimitSlider'>
+  <button onclick='setNightLightLimit()'>Enviar</button>
+  <div id='nightLightLimitValue'>1</div>
 
-  <!-- Slider de low light min -->
-  <h2>Low Light Min</h2>
-  <input type='range' min='1' max='255' value='{{lowLightMin}}' id='lowLightMinSlider'>
-  <button onclick='setLowLightMin()'>Enviar</button>
-  <div id='lowLightMinValue'>{{lowLightMin}}</div>
-
-  <!-- Slider de low light max -->
-  <h2>Low Light Max</h2>
-  <input type='range' min='1' max='255' value='{{lowLightMax}}' id='lowLightMaxSlider'>
-  <button onclick='setLowLightMax()'>Enviar</button>
-  <div id='lowLightMaxValue'>{{lowLightMax}}</div>
+  <!-- Selector de hora de inicio -->
+  <h2>Modo nocturno</h2>
+  <input type='number' min='0' max='23' value='0' id='xxxy'> :
+  <input type='number' min='0' max='59' value='0' id='startMinute'> -
+  <input type='number' min='0' max='23' value='0' id='endHour'> :
+  <input type='number' min='0' max='59' value='0' id='endMinute'>
+  <button onclick='setNightTime()'>Enviar</button>
 
   <!-- Botón de alternancia para invertir dígitos -->
   <h2>Invertir Digitos</h2>
-  <button onclick='toggleInvertedDigits()' id="invertDigitsButton">Alternar</button>
+  <button onclick='toggleInvertedDigits()' id="invertDigitsButton">Cambiar</button>
 
   <script>
+    var invertedValue;
+    var velocitySlider = document.getElementById('velocitySlider');
+    var velocityValue = document.getElementById('velocityValue');
+    var colorModeSelector = document.getElementById("colorModeSelector");
     var colorSlider = document.getElementById('colorSlider');
     var colorValue = document.getElementById('colorValue');
     var colorVisualizer = document.getElementById('colorVisualizer');
-    
-    colorSlider.oninput = function() {
+    var lightLimitSlider = document.getElementById('lightLimitSlider');
+    var lightLimitValue = document.getElementById('lightLimitValue');
+    var nightLightLimitSlider = document.getElementById('nightLightLimitSlider');
+    var nightLightLimitValue = document.getElementById('nightLightLimitValue');
+    var brightSlider = document.getElementById('brightSlider');
+    var brightValue = document.getElementById('brightValue');
+
+    var startHour = document.getElementById('xxxy');
+    var startMinute = document.getElementById('startMinute');
+    var endHour = document.getElementById('endHour');
+    var endMinute = document.getElementById('endMinute');
+
+    velocitySlider.oninput = function () { velocityValue.innerHTML = this.value; };
+
+    function setVelocity() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/velocity?velocity=' + velocitySlider.value, true);
+      xhr.send();
+    }
+
+    function setColorMode() {
+      var colorStaticGroup = document.querySelector('.color-static');
+
+      if (colorModeSelector.value === '0') {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/config', true);
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            var config = JSON.parse(xhr.responseText);
+
+            var color = parseInt(config.color);
+            colorSlider.value = color;
+            updateColorVisualizer(color);
+            colorValue.textContent = color;
+            colorStaticGroup.style.display = 'block';
+          }
+        };
+        xhr.send();
+      } else {
+        colorStaticGroup.style.display = 'none';
+      }
+
+      var xhr2 = new XMLHttpRequest();
+      xhr2.open('GET', '/colormode?mode=' + colorModeSelector.value, true);
+      xhr2.send();
+    }
+
+    colorSlider.oninput = function () {
       colorValue.innerHTML = this.value;
       updateColorVisualizer(this.value);
     };
-    
+
     function setColor() {
-      var color = colorSlider.value;
       var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/color?color=' + color, true);
+      xhr.open('GET', '/color?color=' + colorSlider.value, true);
       xhr.send();
     }
 
-    function updateColorVisualizer(hue) {
-      colorVisualizer.style.backgroundColor = 'hsl(' + hue*1.41 + ', 100%, 50%)';
+    function updateColorVisualizer(color) {
+      colorVisualizer.style.backgroundColor = 'hsl(' + color * 1.41 + ', 100%, 50%)';
     }
-  
-    var lightLimitSlider = document.getElementById('lightLimitSlider');
-    var lightLimitValue = document.getElementById('lightLimitValue');
-    lightLimitSlider.oninput = function() { lightLimitValue.innerHTML = this.value; };
-  
+
+    lightLimitSlider.oninput = function () { lightLimitValue.innerHTML = this.value; };
+
     function setLightLimit() {
-      var lightlimit = lightLimitSlider.value;
       var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/lightlimit?lightLimit=' + lightlimit, true);
-      xhr.send();
-    }
-  
-    var idleLightSlider = document.getElementById('idleLightSlider');
-    var idleLightValue = document.getElementById('idleLightValue');
-    idleLightSlider.oninput = function() { idleLightValue.innerHTML = this.value; };
-  
-    function setIdleLight() {
-      var idlelight = idleLightSlider.value;
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/idlelight?idleLight=' + idlelight, true);
-      xhr.send();
-    }
-  
-    var lowLightMinSlider = document.getElementById('lowLightMinSlider');
-    var lowLightMinValue = document.getElementById('lowLightMinValue');
-    lowLightMinSlider.oninput = function() { lowLightMinValue.innerHTML = this.value; };
-  
-    function setLowLightMin() {
-      var lowlightmin = lowLightMinSlider.value;
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/lowlightmin?lowLightMin=' + lowlightmin, true);
-      xhr.send();
-    }
-  
-    var lowLightMaxSlider = document.getElementById('lowLightMaxSlider');
-    var lowLightMaxValue = document.getElementById('lowLightMaxValue');
-    lowLightMaxSlider.oninput = function() { lowLightMaxValue.innerHTML = this.value; };
-  
-    function setLowLightMax() {
-      var lowlightmax = lowLightMaxSlider.value;
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/lowlightmax?lowLightMax=' + lowlightmax, true);
+      xhr.open('GET', '/lightlimit?lightLimit=' + lightLimitSlider.value, true);
       xhr.send();
     }
 
-    var invertedValue = {{useInvertedDigits}};
+    nightLightLimitSlider.oninput = function () { nightLightLimitValue.innerHTML = this.value; };
+
+    function setNightLightLimit() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/nightlightlimit?lightLimit=' + nightLightLimitSlider.value, true);
+      xhr.send();
+    }
+
+    function setNightTime() {
+      var xhr = new XMLHttpRequest();
+      var url = '/nighttime?0=' + startHour.value + '&1=' + startMinute.value + '&2=' + endHour.value + '&3=' + endMinute.value;
+      xhr.open('GET', url, true);
+      xhr.send();
+    }
 
     function toggleInvertedDigits() {
       var xhr = new XMLHttpRequest();
@@ -120,10 +172,84 @@
       invertDigitsButton.innerHTML = value === 1 ? 'Desactivar' : 'Activar';
     }
 
-    // Actualizar el texto del botón según el valor inicial
-    updateColorVisualizer(parseInt('{{color}}'));
-    updateInvertButtonLabel(parseInt('{{useInvertedDigits}}'));
+    var lastBrightValue = brightSlider.value;
+    var brightSend = true;
+
+    function setBright() {
+      var value = brightSlider.value;
+      brightValue.innerHTML = value;
+
+      if (value != lastBrightValue && brightSend) {
+        setTimeout(function () { sendBright(); }, 150);
+        brightSend = false;
+      }
+    }
+
+    function sendBright() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/brightness?brightness=' + brightSlider.value, true);
+      xhr.send();
+      lastSentValue = brightSlider.value;
+      brightSend = true;
+    }
+
+    function getRoomBrightness() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/getbrightness', true);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          var brightnessValue = JSON.parse(xhr.responseText).brightness;
+          document.getElementById('currentBrightness').textContent = brightnessValue;
+        }
+      };
+      xhr.send();
+    }
+
+    function loadConfig() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/config', true);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          var config = JSON.parse(xhr.responseText);
+
+          velocitySlider.value = config.refreshVelocity;
+          velocityValue.textContent = config.refreshVelocity;
+          invertedValue = parseInt(config.useInvertedDigits);
+          updateInvertButtonLabel(invertedValue);
+          colorModeSelector.value = parseInt(config.colorMode);
+          document.querySelector('.color-static').style.display = colorModeSelector.value === '0' ? 'block' : 'none';
+
+          var color = parseInt(config.color);
+          colorSlider.value = color;
+          updateColorVisualizer(color);
+          colorValue.textContent = color;
+
+          var lightLimit = parseInt(config.lightLimit);
+          lightLimitSlider.value = lightLimit;
+          lightLimitValue.textContent = lightLimit;
+
+          var nightLightLimit = parseInt(config.nightLightLimit);
+          nightLightLimitSlider.value = nightLightLimit;
+          nightLightLimitValue.textContent = nightLightLimit;
+
+          var brightness = parseInt(config.brightness);
+          brightSlider.value = brightness;
+          brightValue.textContent = brightness;
+
+          startHour.value = parseInt(config.nightTimeRange[0]);
+          startMinute.value = parseInt(config.nightTimeRange[1]);
+          endHour.value = parseInt(config.nightTimeRange[2]);
+          endMinute.value = parseInt(config.nightTimeRange[3]);
+        }
+      };
+      xhr.send();
+    }
+
+    window.onload = loadConfig;
+    // Actualizar cada segundo (1000 milisegundos)
+    setInterval(getRoomBrightness, 2500);
   </script>
-  
+
 </body>
+
 </html>

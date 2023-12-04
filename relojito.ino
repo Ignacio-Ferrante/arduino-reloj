@@ -1,30 +1,19 @@
 #include "constants.h"
-#include "server_control.h"
 
 void setup() {
-  Serial.begin(115200);
-  EEPROM.begin(512);
+  initializeEEPROM();
 
   FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, LED_COUNT);
   FastLED.setMaxPowerInVoltsAndMilliamps(5, 1000);
   FastLED.clear();
   FastLED.show();
 
-  WiFi.begin(ssid, password);
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.softAP("reloj");
 
-  int cont = 0;
-  while (WiFi.status() != WL_CONNECTED) {
-    if (cont % 2 == 0) {
-      for (int i = 0; i < LED_COUNT; i++)
-        leds[i] = CHSV(0, 255, 125);
-    } else
-      FastLED.clear();
-
-    cont++;
-    FastLED.show();
-    delay(500);
+  if(globalConfig.ssid != "") {
+    WiFi.begin(globalConfig.ssid, globalConfig.password);
   }
-  Serial.println("  Conectado!");
 
   timeClient.begin();
   pinMode(LIGHT_SENSOR_PIN, INPUT);
@@ -32,62 +21,107 @@ void setup() {
   initServer();
 }
 
+bool nightTime;
+int cont = 0;
+
 void loop() {
-  server.handleClient();
-  // Obtiene la hora y los minutos
-  timeClient.update();
+  if (WiFi.status() != WL_CONNECTED) {
+    if (cont % 20 < 10) {
+      for (int i = 0; i < LED_COUNT; i++)
+        leds[i] = CHSV(globalConfig.color, 255, 150);
+    } else
+      FastLED.clear();
 
-  updateBrightness();
-  showTime(timeClient.getHours(), timeClient.getMinutes());
+    cont++;
+    FastLED.show();
+  } else {
+    cont = 0;
+    server.handleClient();
+    timeClient.update();
+    nightTime = isNightTime();
 
-  delay(250);
+    updateBrightness();
+    showTime(timeClient.getHours(), timeClient.getMinutes());
+  }
+  delay(globalConfig.refreshVelocity);
 }
+
+int brightness;
 
 void updateBrightness() {
   int ligthRead = analogRead(LIGHT_SENSOR_PIN);
   int porcentaje = map(ligthRead, 0, 1024, 0, 100);
 
-  if (porcentaje >= lightLimit)
+  if (porcentaje > globalConfig.lightLimit)
     brightness = 255;
-  else if (porcentaje >= idleLight)
-    brightness = map(ligthRead, idleLight * 10, lightLimit * 10, 150, 254);
-  else
-    brightness = map(ligthRead, 0, idleLight * 10, lowLightMin, lowLightMax);
-
-  Serial.println("Ligth read: " + String(ligthRead) + " - porcentaje: " + String(porcentaje) + " - brillo: " + String(brightness));
+  else if (nightTime) {
+    brightness = porcentaje >= globalConfig.nightLightLimit ? map(ligthRead, 0, 1024, globalConfig.nightLightLimit, 254) : 1;
+  } else {
+    int mappedBright = map(globalConfig.brightness, 1, 254, 1, 100);
+    brightness = porcentaje > mappedBright ? map(porcentaje, 1, 100, 1, 254) : globalConfig.brightness;
+  }
 }
 
+bool isNightTime() {
+  int hour = timeClient.getHours(), minutes = timeClient.getMinutes();
+
+  return (hour < globalConfig.nightTimeRange[2] || (hour == globalConfig.nightTimeRange[2] && minutes < globalConfig.nightTimeRange[3]))
+    || (hour > globalConfig.nightTimeRange[0] || (hour == globalConfig.nightTimeRange[0] && minutes >= globalConfig.nightTimeRange[1]));
+}
+
+int nextColor = globalConfig.color;
+
 void showTime(int hour, int minutes) {
-  Serial.println(String(hour) + " : " + String(minutes));
   FastLED.clear();
 
   int time[4] = { hour / 10, hour % 10, minutes / 10, minutes % 10 };
 
-  for (int i = 0; i < 4; i++) {
-    useInvertedDigits ? showDigit(i, time[3 - i]) : showDigit(i, time[i]);
+  if (globalConfig.colorMode != 0 && !nightTime) {
+    nextColor++;
+    if (nextColor > 255)
+      nextColor = 0;
+    globalConfig.color = nextColor;
   }
 
-  for (int i = 0; i < 2 * Q_LED_DIGIT; i++) {  //colorea los puntos
-    leds[14 * Q_LED_DIGIT + i] = CHSV(color, 255, brightness);
+  for (int i = 0; i < 4; i++) {
+    globalConfig.useInvertedDigits ? showDigit(i, time[3 - i]) : showDigit(i, time[i]);
+
+    if (globalConfig.colorMode == 2 && !nightTime)
+      globalConfig.color = (globalConfig.color + 10) % 255;
+
+    if (i == 1) {
+      for (int i = 0; i < 2 * LED_SEGMENT_QUANTITY; i++)
+        printLed(14 * LED_SEGMENT_QUANTITY + i);
+
+      if (globalConfig.colorMode == 2 && !nightTime)
+        globalConfig.color = (globalConfig.color + 10) % 255;
+    }
   }
 
   FastLED.show();
   delay(10);
-  FastLED.show();  //disminuye el problema de la interrupcion por usar wifi
+  FastLED.show(); // disminuye el problema de la interrupcion por usar wifi
 }
 
 void showDigit(int position, int value) {
-  int offset = position * 7 * Q_LED_DIGIT + ((position / 2) * 2 * Q_LED_DIGIT);
+  int offset = position * 7 * LED_SEGMENT_QUANTITY + ((position / 2) * 2 * LED_SEGMENT_QUANTITY);
 
-  for (int i = 0; i < 7 * Q_LED_DIGIT; i++) {
-    int num = digits[value][i / Q_LED_DIGIT];
-    int inNum = invertedDigits[value][i / Q_LED_DIGIT];
-    if ((useInvertedDigits == 0 && num == 1) || (useInvertedDigits == 1 && inNum == 1)) {
-      leds[i + offset] = brightness < 255
-                           ? CHSV(color, 255, brightness)
-                           : leds[i + offset] = CRGB::Green;
-    } else {
+  for (int i = 0; i < 7 * LED_SEGMENT_QUANTITY; i++) {
+    int num = digits[value][i / LED_SEGMENT_QUANTITY];
+    int inNum = invertedDigits[value][i / LED_SEGMENT_QUANTITY];
+
+    if ((globalConfig.useInvertedDigits == 0 && num == 1) || (globalConfig.useInvertedDigits == 1 && inNum == 1))
+      printLed(i + offset);
+    else
       leds[i + offset] = CHSV(0, 0, 0);
-    }
   }
+}
+
+void printLed(int position) {
+  if (brightness == 255)
+    leds[position] = CRGB::Green;
+  else if (nightTime)
+    leds[position] = CHSV(17, 255, brightness);
+  else
+    leds[position] = CHSV(globalConfig.color, 255, brightness);
 }

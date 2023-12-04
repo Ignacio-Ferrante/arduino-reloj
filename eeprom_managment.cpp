@@ -1,28 +1,49 @@
 #include "constants.h"
 
-//----------------Función para grabar en la EEPROM-------------------
-void grabar(int addr, String a) {
-  int tamano = a.length(); 
-  char inchar[50]; 
-  a.toCharArray(inchar, tamano+1);
-  for (int i = 0; i < tamano; i++) {
-    EEPROM.write(addr+i, inchar[i]);
-  }
-  for (int i = tamano; i < 50; i++) {
-    EEPROM.write(addr+i, 255);
+void saveConfig() {
+  EEPROM.begin(sizeof(globalConfig));
+  EEPROM.put(0, globalConfig);
+  EEPROM.commit();
+  EEPROM.end();
+}
+
+void loadConfig() {
+  EEPROM.begin(sizeof(globalConfig));
+  EEPROM.get(0, globalConfig);
+  EEPROM.end();
+}
+
+void wipeEEPROM() {
+  for (int i = 0; i < EEPROM.length(); i++) {
+    EEPROM.write(i, 0);
   }
   EEPROM.commit();
 }
 
-//-----------------Función para leer la EEPROM------------------------
-String leer(int addr) {
-   byte lectura;
-   String strlectura;
-   for (int i = addr; i < addr+50; i++) {
-      lectura = EEPROM.read(i);
-      if (lectura != 255) {
-        strlectura += (char)lectura;
-      }
-   }
-   return strlectura;
+bool isEEPROMEmpty() {
+  bool isEmpty = true;
+
+  for (int i = 0; i < EEPROM.length(); i++) {
+    if (EEPROM.read(i) != 0 && EEPROM.read(i) != 255) {
+      isEmpty = false;
+      break;
+    }
+  }
+
+  return isEmpty;
+}
+
+void initializeEEPROM() {
+  EEPROM.begin(sizeof(globalConfig));
+
+  if (isEEPROMEmpty()) {
+    globalConfig.firstTime = false;
+    EEPROM.put(0, globalConfig);
+    EEPROM.commit();
+  }
+  else {
+    EEPROM.get(0, globalConfig);
+  }
+
+  EEPROM.end();
 }
