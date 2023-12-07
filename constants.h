@@ -31,7 +31,6 @@ struct configs {
     int color, colorMode, brightness;
 
     int nightTimeRange[4];
-    bool firstTime;
 };
 
 extern configs globalConfig;

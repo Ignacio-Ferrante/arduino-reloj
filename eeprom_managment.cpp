@@ -23,7 +23,7 @@ void wipeEEPROM() {
 bool isEEPROMEmpty() {
   bool isEmpty = true;
 
-  for (int i = 0; i < EEPROM.length(); i++) {
+  for (int i = 1; i < EEPROM.length(); i++) {
     if (EEPROM.read(i) != 0 && EEPROM.read(i) != 255) {
       isEmpty = false;
       break;
@@ -34,15 +34,15 @@ bool isEEPROMEmpty() {
 }
 
 void initializeEEPROM() {
-  EEPROM.begin(sizeof(globalConfig));
+  EEPROM.begin(sizeof(globalConfig)+1);
 
-  if (isEEPROMEmpty()) {
-    globalConfig.firstTime = false;
-    EEPROM.put(0, globalConfig);
+  if (EEPROM.read(0) != 17 && isEEPROMEmpty()) {
+    EEPROM.write(0, 17);
+    EEPROM.put(1, globalConfig);
     EEPROM.commit();
   }
   else {
-    EEPROM.get(0, globalConfig);
+    EEPROM.get(1, globalConfig);
   }
 
   EEPROM.end();

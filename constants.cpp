@@ -15,8 +15,7 @@ configs globalConfig = {
   .color = 17,
   .colorMode = 0,
   .brightness = 200,
-  .nightTimeRange = {21, 0, 7, 0},
-  .firstTime = true
+  .nightTimeRange = {21, 0, 7, 0}
 };
 
 int digits[10][7] = {
