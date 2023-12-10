@@ -73,10 +73,6 @@ void resetDefault() {
   saveConfig();
 }
 
-void handleUpdate() {
-  ArduinoOTA.handle();
-}
-
 void initServer() {
   server.on("/", handleRoot);
   server.on("/config", getConfigs);
@@ -89,7 +85,6 @@ void initServer() {
   server.on("/nighttime", setNightTimeRange);
   server.on("/getbrightness", getbrightness);
   server.on("/resetdefault", resetDefault);
-  server.on("/update", HTTP_POST, handleUpdate);
 
   server.begin();
 }

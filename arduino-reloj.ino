@@ -15,7 +15,7 @@ void setup() {
     WiFi.begin(globalConfig.ssid, globalConfig.password);
   }
 
-  ArduinoOTA.begin();
+  ElegantOTA.begin(&server);
   timeClient.begin();
   pinMode(LIGHT_SENSOR_PIN, INPUT);
 
@@ -39,7 +39,7 @@ void loop() {
     cont = 0;
 
     server.handleClient();
-    ArduinoOTA.handle();
+    ElegantOTA.loop();
     timeClient.update();
     nightTime = isNightTime();
 
