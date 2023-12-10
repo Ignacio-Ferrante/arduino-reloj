@@ -3,6 +3,8 @@
 
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
+#include <ArduinoOTA.h>
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 #include <TimeLib.h>
@@ -33,14 +35,15 @@ struct configs {
     int nightTimeRange[4];
 };
 
-extern configs globalConfig;
+extern configs defaultConfig, globalConfig;
 
 extern int digits[10][7];
 extern int invertedDigits[10][7];
 
+String getJsonConfigs(configs config, bool showWifiData);
 void initServer();
 void initializeEEPROM();
-void loadConfig();
 void saveConfig();
+void wipeEEPROM();
 
 #endif

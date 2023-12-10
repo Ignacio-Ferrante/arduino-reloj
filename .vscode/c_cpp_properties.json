@@ -37,6 +37,8 @@
                 "/Users/iferrante/Library/Arduino15/packages/esp8266/hardware/esp8266/3.1.2/variants/generic",
                 "/Users/iferrante/Library/Arduino15/packages/esp8266/hardware/esp8266/3.1.2/libraries/ESP8266WiFi/src",
                 "/Users/iferrante/Library/Arduino15/packages/esp8266/hardware/esp8266/3.1.2/libraries/ESP8266WebServer/src",
+                "/Users/iferrante/Library/Arduino15/packages/esp8266/hardware/esp8266/3.1.2/libraries/ESP8266mDNS/src",
+                "/Users/iferrante/Library/Arduino15/packages/esp8266/hardware/esp8266/3.1.2/libraries/ArduinoOTA",
                 "/Users/iferrante/Documents/Arduino/libraries/NTPClient",
                 "/Users/iferrante/Documents/Arduino/libraries/Time",
                 "/Users/iferrante/Documents/Arduino/libraries/FastLED/src",

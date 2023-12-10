@@ -16,21 +16,7 @@ void handleRoot() {
 }
 
 void getConfigs() {
-  DynamicJsonDocument jsonObject(JSON_OBJECT_SIZE(12));
-  jsonObject["refreshVelocity"] = globalConfig.refreshVelocity;
-  jsonObject["useInvertedDigits"] = globalConfig.useInvertedDigits;
-  jsonObject["color"] = globalConfig.color;
-  jsonObject["colorMode"] = globalConfig.colorMode;
-  jsonObject["brightness"] = map(globalConfig.brightness, 1, 255, 1, 100);
-  jsonObject["nightTimeRange"][0] = globalConfig.nightTimeRange[0];
-  jsonObject["nightTimeRange"][1] = globalConfig.nightTimeRange[1];
-  jsonObject["nightTimeRange"][2] = globalConfig.nightTimeRange[2];
-  jsonObject["nightTimeRange"][3] = globalConfig.nightTimeRange[3];
-
-  String jsonStr;
-  serializeJson(jsonObject, jsonStr);
-
-  server.send(200, "application/json", jsonStr);
+  server.send(200, "application/json", getJsonConfigs(globalConfig, false));
 }
 
 void setWifi() {
@@ -81,6 +67,16 @@ void getbrightness() {
   server.send(200, "application/json", jsonStr);
 }
 
+void resetDefault() {
+  globalConfig = defaultConfig;
+  wipeEEPROM();
+  saveConfig();
+}
+
+void handleUpdate() {
+  ArduinoOTA.handle();
+}
+
 void initServer() {
   server.on("/", handleRoot);
   server.on("/config", getConfigs);
@@ -92,5 +88,30 @@ void initServer() {
   server.on("/brightness", setBrightness);
   server.on("/nighttime", setNightTimeRange);
   server.on("/getbrightness", getbrightness);
+  server.on("/resetdefault", resetDefault);
+  server.on("/update", HTTP_POST, handleUpdate);
+
   server.begin();
+}
+
+
+String getJsonConfigs(configs config, bool showWifiData) {
+  DynamicJsonDocument jsonObject(JSON_OBJECT_SIZE(12));
+  if(showWifiData) {
+    jsonObject["ssid"] = config.ssid;
+    jsonObject["password"] = config.password;
+  }
+  jsonObject["refreshVelocity"] = config.refreshVelocity;
+  jsonObject["useInvertedDigits"] = config.useInvertedDigits;
+  jsonObject["color"] = config.color;
+  jsonObject["colorMode"] = config.colorMode;
+  jsonObject["brightness"] = map(config.brightness, 1, 255, 1, 100);
+  jsonObject["nightTimeRange"][0] = config.nightTimeRange[0];
+  jsonObject["nightTimeRange"][1] = config.nightTimeRange[1];
+  jsonObject["nightTimeRange"][2] = config.nightTimeRange[2];
+  jsonObject["nightTimeRange"][3] = config.nightTimeRange[3];
+
+  String jsonStr;
+  serializeJson(jsonObject, jsonStr);
+  return jsonStr;
 }

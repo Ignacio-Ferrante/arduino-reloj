@@ -7,23 +7,20 @@ void saveConfig() {
   EEPROM.end();
 }
 
-void loadConfig() {
-  EEPROM.begin(sizeof(globalConfig));
-  EEPROM.get(0, globalConfig);
-  EEPROM.end();
-}
-
 void wipeEEPROM() {
+  EEPROM.begin(sizeof(globalConfig)*3);
+
   for (int i = 0; i < EEPROM.length(); i++) {
     EEPROM.write(i, 0);
   }
   EEPROM.commit();
+  EEPROM.end();
 }
 
 bool isEEPROMEmpty() {
   bool isEmpty = true;
 
-  for (int i = 1; i < EEPROM.length(); i++) {
+  for (int i = 0; i < EEPROM.length(); i++) {
     if (EEPROM.read(i) != 0 && EEPROM.read(i) != 255) {
       isEmpty = false;
       break;
@@ -34,15 +31,14 @@ bool isEEPROMEmpty() {
 }
 
 void initializeEEPROM() {
-  EEPROM.begin(sizeof(globalConfig)+1);
+  EEPROM.begin(sizeof(defaultConfig) + sizeof(globalConfig));
 
-  if (EEPROM.read(0) != 17 && isEEPROMEmpty()) {
-    EEPROM.write(0, 17);
-    EEPROM.put(1, globalConfig);
+  if (isEEPROMEmpty()) {
+    EEPROM.put(0, defaultConfig);
     EEPROM.commit();
-  }
-  else {
-    EEPROM.get(1, globalConfig);
+    globalConfig = defaultConfig;
+  } else {
+    EEPROM.get(0, globalConfig);
   }
 
   EEPROM.end();

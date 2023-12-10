@@ -15,6 +15,7 @@ void setup() {
     WiFi.begin(globalConfig.ssid, globalConfig.password);
   }
 
+  ArduinoOTA.begin();
   timeClient.begin();
   pinMode(LIGHT_SENSOR_PIN, INPUT);
 
@@ -36,7 +37,9 @@ void loop() {
     FastLED.show();
   } else {
     cont = 0;
+
     server.handleClient();
+    ArduinoOTA.handle();
     timeClient.update();
     nightTime = isNightTime();
 
@@ -52,10 +55,12 @@ void updateBrightness() {
   int ligthRead = analogRead(LIGHT_SENSOR_PIN);
   int mappedBright = map(ligthRead, 0, 1024, 1, 255);
 
-  brightness = mappedBright > globalConfig.brightness ? mappedBright : globalConfig.brightness;
 
-  if (nightTime) {
-    brightness = max(1, brightness / 3);
+  if (nightTime)
+    brightness = mappedBright;
+  else {
+    brightness = mappedBright > globalConfig.brightness ? mappedBright : globalConfig.brightness;
+    brightness = min(255, (brightness * 3)/2);
   }
 }
 

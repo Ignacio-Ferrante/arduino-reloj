@@ -7,14 +7,15 @@ NTPClient timeClient(ntpUDP, "pool.ntp.org", -3 * 3600);
 
 CRGB leds[LED_COUNT];
 
-configs globalConfig = {
+configs globalConfig;
+configs defaultConfig = {
   .ssid = "WiFi Casa 2.4",
   .password = "0102721003",
-  .refreshVelocity = 30,
+  .refreshVelocity = 300,
   .useInvertedDigits = 1,
   .color = 17,
   .colorMode = 0,
-  .brightness = 200,
+  .brightness = 100,
   .nightTimeRange = {21, 0, 7, 0}
 };
 
