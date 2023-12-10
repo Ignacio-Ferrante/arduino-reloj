@@ -70,10 +70,10 @@ void getbrightness() {
 void setTimerMode() {
   contTimer = 0;
 
-  globalConfig.timeMode = server.arg("mode").toInt();
+  globalConfig.timerMode = server.arg("mode").toInt();
   saveConfig();
 
-  if(globalConfig.timeMode == 2) 
+  if(globalConfig.timerMode == 2) 
     resetCountDown();
 }
 
@@ -125,7 +125,7 @@ void initServer() {
 
 
 String getJsonConfigs(configs config, bool showWifiData) {
-  DynamicJsonDocument jsonObject(JSON_OBJECT_SIZE(12));
+  DynamicJsonDocument jsonObject(JSON_OBJECT_SIZE(15));
   if(showWifiData) {
     jsonObject["ssid"] = config.ssid;
     jsonObject["password"] = config.password;
@@ -138,6 +138,7 @@ String getJsonConfigs(configs config, bool showWifiData) {
   jsonObject["nightTimeRange"][0] = config.nightTimeRange[0];
   jsonObject["nightTimeRange"][1] = config.nightTimeRange[1];
   jsonObject["nightTimeRange"][2] = config.nightTimeRange[2];
+  jsonObject["nightTimeRange"][3] = config.nightTimeRange[3];
   jsonObject["nightTimeRange"][3] = config.nightTimeRange[3];
 
   String jsonStr;

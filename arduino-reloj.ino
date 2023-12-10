@@ -42,7 +42,7 @@ void loop() {
     nightTime = isNightTime();
     updateBrightness();
 
-    if (globalConfig.timeMode != 0) {
+    if (globalConfig.timerMode != 0) {
       manageTimer();
     } else {
       timeClient.update();
@@ -80,7 +80,7 @@ void manageTimer() {
     int minutes = currentTime / 60000;
     int seconds = (currentTime / 1000) % 60;
 
-    if (globalConfig.timeMode == 1) {
+    if (globalConfig.timerMode == 1) {
       cronoMinutes = minutes;
       cronoSeconds = seconds;
       showTime(minutes, seconds);
@@ -97,7 +97,7 @@ void manageTimer() {
 
   } else {
     if (contTimer % 20 < 10) {
-      if (globalConfig.timeMode == 1)
+      if (globalConfig.timerMode == 1)
         showTime(cronoMinutes, cronoSeconds);
       else
         showTime(countdownMinutes, countdownSeconds);

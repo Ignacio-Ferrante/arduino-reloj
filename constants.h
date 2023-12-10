@@ -34,7 +34,7 @@ struct configs {
 
     int nightTimeRange[4];
 
-    int timeMode, countdownMinutes, countdownSeconds;
+    int timerMode, countdownMinutes, countdownSeconds;
 };
 
 extern configs defaultConfig, globalConfig;
