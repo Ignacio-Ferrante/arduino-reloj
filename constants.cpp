@@ -11,13 +11,23 @@ configs globalConfig;
 configs defaultConfig = {
   .ssid = "WiFi Casa 2.4",
   .password = "0102721003",
-  .refreshVelocity = 300,
+  .refreshVelocity = 100,
   .useInvertedDigits = 1,
   .color = 17,
   .colorMode = 0,
   .brightness = 100,
-  .nightTimeRange = {21, 0, 7, 0}
+  .nightTimeRange = {21, 0, 7, 0},
+  .timeMode = 0,
+  .countdownMinutes = 5,
+  .countdownSeconds = 0
 };
+
+bool nightTime;
+int brightness;
+
+bool isRunning;
+int contTimer, countdownMinutes, countdownSeconds, cronoMinutes, cronoSeconds;
+unsigned long startTime;
 
 int digits[10][7] = {
   { 0, 1, 1, 1, 1, 1, 1 },  // 0

@@ -67,6 +67,32 @@ void getbrightness() {
   server.send(200, "application/json", jsonStr);
 }
 
+void setTimerMode() {
+  contTimer = 0;
+
+  globalConfig.timeMode = server.arg("mode").toInt();
+  saveConfig();
+
+  if(globalConfig.timeMode == 2) 
+    resetCountDown();
+}
+
+void startTimer() {
+  startTime = millis();
+  isRunning = true;
+}
+
+void stopTimer() {
+  isRunning = false;
+}
+
+void setCountDown() {
+  globalConfig.countdownMinutes = server.arg("min").toInt();
+  globalConfig.countdownSeconds = server.arg("sec").toInt();
+  resetCountDown();
+  saveConfig();
+}
+
 void resetDefault() {
   globalConfig = defaultConfig;
   wipeEEPROM();
@@ -75,6 +101,7 @@ void resetDefault() {
 
 void initServer() {
   server.on("/", handleRoot);
+
   server.on("/config", getConfigs);
   server.on("/wifi", setWifi);
   server.on("/velocity", setVelocity);
@@ -84,6 +111,13 @@ void initServer() {
   server.on("/brightness", setBrightness);
   server.on("/nighttime", setNightTimeRange);
   server.on("/getbrightness", getbrightness);
+  server.on("/timermode", setTimerMode);
+  server.on("/starttimer", startTimer);
+  server.on("/stoptimer", stopTimer);
+  server.on("/setcountdown", setCountDown);
+  server.on("/resetcountdown", resetCountDown);
+  server.on("/resetcrono", resetCrono);
+
   server.on("/resetdefault", resetDefault);
 
   server.begin();
