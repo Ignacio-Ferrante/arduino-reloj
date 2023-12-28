@@ -7,9 +7,31 @@ void printLed(int position) {
     leds[position] = CHSV(globalConfig.color, 255, brightness);
 }
 
+void updateBrightness() {
+  int ligthRead = analogRead(LIGHT_SENSOR_PIN);
+  int mappedBright = map(ligthRead, 0, 1024, 1, 255);
+
+  if (nightTime)
+    brightness = mappedBright;
+  else {
+    brightness = mappedBright > globalConfig.brightness ? mappedBright : globalConfig.brightness;
+    brightness = min(255, (brightness * 3) / 2);
+  }
+}
+
+bool isNightTime() {
+  int hour = timeClient.getHours(), minutes = timeClient.getMinutes();
+
+  return (hour < globalConfig.nightTimeRange[2] || (hour == globalConfig.nightTimeRange[2] && minutes < globalConfig.nightTimeRange[3]))
+    || (hour > globalConfig.nightTimeRange[0] || (hour == globalConfig.nightTimeRange[0] && minutes >= globalConfig.nightTimeRange[1]));
+}
+
 int nextColor = globalConfig.color;
 
 void showTime(int hour, int minutes) {
+  nightTime = isNightTime();
+  updateBrightness();
+
   FastLED.clear();
 
   int time[4] = { hour / 10, hour % 10, minutes / 10, minutes % 10 };
@@ -56,6 +78,11 @@ void showDigit(int position, int value) {
 }
 
 void printAllSegments(int color, int bright) {
-    for (int i = 0; i < LED_COUNT; i++)
-        leds[i] = CHSV(color, 255, bright);
+  for (int i = 0; i < LED_COUNT; i++)
+    leds[i] = CHSV(color, 255, bright);
+}
+
+void turnOffAllDigits() {
+  FastLED.clear();
+  FastLED.show();
 }

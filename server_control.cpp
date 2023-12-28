@@ -72,13 +72,10 @@ void setTimerMode() {
 
   globalConfig.timerMode = server.arg("mode").toInt();
   saveConfig();
-
-  if(globalConfig.timerMode == 2) 
-    resetCountDown();
 }
 
 void startTimer() {
-  startTime = millis();
+  timerStartTime = millis();
   isRunning = true;
 }
 
@@ -89,7 +86,6 @@ void stopTimer() {
 void setCountDown() {
   globalConfig.countdownMinutes = server.arg("min").toInt();
   globalConfig.countdownSeconds = server.arg("sec").toInt();
-  resetCountDown();
   saveConfig();
 }
 
@@ -115,7 +111,6 @@ void initServer() {
   server.on("/starttimer", startTimer);
   server.on("/stoptimer", stopTimer);
   server.on("/setcountdown", setCountDown);
-  server.on("/resetcountdown", resetCountDown);
   server.on("/resetcrono", resetCrono);
 
   server.on("/resetdefault", resetDefault);
@@ -139,7 +134,9 @@ String getJsonConfigs(configs config, bool showWifiData) {
   jsonObject["nightTimeRange"][1] = config.nightTimeRange[1];
   jsonObject["nightTimeRange"][2] = config.nightTimeRange[2];
   jsonObject["nightTimeRange"][3] = config.nightTimeRange[3];
-  jsonObject["nightTimeRange"][3] = config.nightTimeRange[3];
+  jsonObject["timerMode"] = config.timerMode;
+  jsonObject["countdownMinutes"] = config.countdownMinutes;
+  jsonObject["countdownSeconds"] = config.countdownSeconds;
 
   String jsonStr;
   serializeJson(jsonObject, jsonStr);

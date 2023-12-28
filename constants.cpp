@@ -27,7 +27,7 @@ int brightness;
 
 bool isRunning;
 int contTimer, countdownMinutes, countdownSeconds, cronoMinutes, cronoSeconds;
-unsigned long startTime;
+unsigned long timerStartTime;
 
 int digits[10][7] = {
   { 0, 1, 1, 1, 1, 1, 1 },  // 0

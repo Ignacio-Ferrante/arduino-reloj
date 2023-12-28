@@ -37,16 +37,23 @@ struct configs {
     int timerMode, countdownMinutes, countdownSeconds;
 };
 
+enum TimerMode { CLOCK, COUNT, COUNTDOWN };
+
 extern configs defaultConfig, globalConfig;
 extern bool nightTime;
 extern int brightness;
 
 extern bool isRunning;
 extern int contTimer, countdownMinutes, countdownSeconds, cronoMinutes, cronoSeconds;
-extern unsigned long startTime;
+extern unsigned long timerStartTime;
 
 extern int digits[10][7];
 extern int invertedDigits[10][7];
+
+void initializeClock();
+void clockManagment();
+void timerManagment();
+void resetCrono();
 
 String getJsonConfigs(configs config, bool showWifiData);
 void initServer();
@@ -54,11 +61,9 @@ void initializeEEPROM();
 void saveConfig();
 void wipeEEPROM();
 
-void resetCountDown();
-void resetCrono();
-
 void showTime(int hour, int minutes);
 void showDigit(int position, int value);
 void printAllSegments(int color, int bright);
+void turnOffAllDigits();
 
 #endif
