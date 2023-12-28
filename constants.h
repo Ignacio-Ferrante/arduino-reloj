@@ -44,7 +44,6 @@ extern bool nightTime;
 extern int brightness;
 
 extern bool isRunning;
-extern int contTimer, countdownMinutes, countdownSeconds, cronoMinutes, cronoSeconds;
 extern unsigned long timerStartTime;
 
 extern int digits[10][7];

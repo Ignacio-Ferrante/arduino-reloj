@@ -1,5 +1,4 @@
 #include "constants.h"
-#include "Arduino.h"
 
 unsigned long lastRefresh;
 

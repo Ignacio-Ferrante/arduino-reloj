@@ -68,8 +68,6 @@ void getbrightness() {
 }
 
 void setTimerMode() {
-  contTimer = 0;
-
   globalConfig.timerMode = server.arg("mode").toInt();
   saveConfig();
 }
@@ -93,6 +91,7 @@ void resetDefault() {
   globalConfig = defaultConfig;
   wipeEEPROM();
   saveConfig();
+  WiFi.begin(globalConfig.ssid, globalConfig.password);
 }
 
 void initServer() {

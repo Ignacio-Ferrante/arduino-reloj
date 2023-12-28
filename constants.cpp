@@ -16,7 +16,7 @@ configs defaultConfig = {
   .color = 17,
   .colorMode = 0,
   .brightness = 100,
-  .nightTimeRange = {21, 0, 7, 0},
+  .nightTimeRange = {22, 30, 7, 0},
   .timerMode = 0,
   .countdownMinutes = 5,
   .countdownSeconds = 0
@@ -26,7 +26,6 @@ bool nightTime;
 int brightness;
 
 bool isRunning;
-int contTimer, countdownMinutes, countdownSeconds, cronoMinutes, cronoSeconds;
 unsigned long timerStartTime;
 
 int digits[10][7] = {
