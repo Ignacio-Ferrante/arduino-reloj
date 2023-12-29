@@ -4,11 +4,11 @@ int minutesDigits, secondsDigits;
 int countDownSeconds = globalConfig.countdownSeconds;
 
 void limitControl(int limit) {
-  isRunning = minutesDigits != limit || secondsDigits != limit;
+  isTimerRunning = minutesDigits != limit || secondsDigits != limit;
 }
 
 void runningControl() {
-  int currentTime = (millis() - timerStartTime)/1000;
+  int currentTime = (millis() - timerStartTime) / 1000;
 
   if (globalConfig.timerMode == COUNT) {
     minutesDigits = min(99, currentTime / 60);
@@ -38,7 +38,7 @@ void pausedControl() {
 }
 
 void timerManagment() {
-  isRunning ? runningControl() : pausedControl();
+  isTimerRunning ? runningControl() : pausedControl();
 }
 
 void resetCrono() {

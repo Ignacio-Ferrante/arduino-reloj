@@ -9,7 +9,8 @@ void setup() {
 
 void loop() {
   if (millis() - lastRefresh >= globalConfig.refreshVelocity) {
-    globalConfig.timerMode == CLOCK ? clockManagment() : timerManagment();
+    updateTime();
+    globalConfig.timerMode == CLOCK ? showTime(hours, minutes) : timerManagment();
     lastRefresh = millis();
   }
 

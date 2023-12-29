@@ -19,6 +19,8 @@ void initializeClock() {
   timeClient.begin();
   ElegantOTA.begin(&server);
 
+  setTime(0, 0, 0, 1, 1, 2024);
+
   pinMode(LIGHT_SENSOR_PIN, INPUT);
 
   resetCrono();

@@ -1,11 +1,12 @@
 #include "constants.h"
 
-void clockManagment() {
+void updateTime() {
   if (WiFi.status() == WL_CONNECTED) {
     timeClient.update();
-    showTime(timeClient.getHours(), timeClient.getMinutes());
-  }
-  else {
-    showTime(0, 0);
+    hours = timeClient.getHours();
+    minutes = timeClient.getMinutes();
+  } else {
+    hours = hour();
+    minutes = minute();
   }
 }

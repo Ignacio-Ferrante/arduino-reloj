@@ -40,22 +40,22 @@ struct configs {
 enum TimerMode { CLOCK, COUNT, COUNTDOWN };
 
 extern configs defaultConfig, globalConfig;
-extern bool nightTime;
-extern int brightness;
 
-extern bool isRunning;
+extern int hours, minutes;
+
+extern bool isTimerRunning;
 extern unsigned long timerStartTime;
 
-extern int digits[10][7];
-extern int invertedDigits[10][7];
+extern int digits[10][7], invertedDigits[10][7];
 
 void initializeClock();
-void clockManagment();
+void updateTime();
 void timerManagment();
 void resetCrono();
 
 String getJsonConfigs(configs config, bool showWifiData);
 void initServer();
+
 void initializeEEPROM();
 void saveConfig();
 void wipeEEPROM();

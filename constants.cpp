@@ -22,10 +22,9 @@ configs defaultConfig = {
   .countdownSeconds = 0
 };
 
-bool nightTime;
-int brightness;
+int hours, minutes;
 
-bool isRunning;
+bool isTimerRunning;
 unsigned long timerStartTime;
 
 int digits[10][7] = {

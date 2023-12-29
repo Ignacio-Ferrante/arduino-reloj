@@ -1,5 +1,8 @@
 #include "constants.h"
 
+bool nightTime;
+int brightness;
+
 void printLed(int position) {
   if (nightTime)
     leds[position] = CHSV(1, 255, brightness);
@@ -14,16 +17,14 @@ void updateBrightness() {
   if (nightTime)
     brightness = mappedBright;
   else {
-    brightness = mappedBright > globalConfig.brightness ? mappedBright : globalConfig.brightness;
+    brightness = max(mappedBright, globalConfig.brightness);
     brightness = min(255, (brightness * 3) / 2);
   }
 }
 
 bool isNightTime() {
-  int hour = timeClient.getHours(), minutes = timeClient.getMinutes();
-
-  return (hour < globalConfig.nightTimeRange[2] || (hour == globalConfig.nightTimeRange[2] && minutes < globalConfig.nightTimeRange[3]))
-    || (hour > globalConfig.nightTimeRange[0] || (hour == globalConfig.nightTimeRange[0] && minutes >= globalConfig.nightTimeRange[1]));
+  return (hours < globalConfig.nightTimeRange[2] || (hours == globalConfig.nightTimeRange[2] && minutes < globalConfig.nightTimeRange[3]))
+    || (hours > globalConfig.nightTimeRange[0] || (hours == globalConfig.nightTimeRange[0] && minutes >= globalConfig.nightTimeRange[1]));
 }
 
 int nextColor = globalConfig.color;

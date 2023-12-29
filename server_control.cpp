@@ -5,12 +5,10 @@ void handleRoot() {
 
   File file = LittleFS.open("/server_page.html", "r");
 
-  if (file) {
+  if (file)
     server.streamFile(file, "text/html");
-  }
-  else {
+  else
     server.send(404, "text/plain", "Archivo HTML no encontrado");
-  }
 
   file.close();
 }
@@ -25,36 +23,43 @@ void setWifi() {
 
   WiFi.begin(globalConfig.ssid, globalConfig.password);
   saveConfig();
+  server.send(200, "text/plain", "Conectando al WiFi" + globalConfig.ssid + " : " + globalConfig.password);
 }
 
 void setVelocity() {
   globalConfig.refreshVelocity = map(server.arg("velocity").toInt(), 1, 100, 100, 1);
   saveConfig();
+  server.send(200);
 }
 
 void setUseInvertedDigits() {
   globalConfig.useInvertedDigits = server.arg("useInvertedDigits").toInt();
   saveConfig();
+  server.send(200);
 }
 
 void setColor() {
   globalConfig.color = server.arg("color").toInt();
   saveConfig();
+  server.send(200);
 }
 
 void setColorMode() {
   globalConfig.colorMode = server.arg("mode").toInt();
   saveConfig();
+  server.send(200);
 }
 
 void setBrightness() {
   globalConfig.brightness = map(server.arg("brightness").toInt(), 1, 100, 1, 255);
+  server.send(200);
 }
 
 void setNightTimeRange() {
   for (int i = 0; i < 4; i++)
     globalConfig.nightTimeRange[i] = server.arg(String(i)).toInt();
   saveConfig();
+  server.send(200);
 }
 
 void getbrightness() {
@@ -70,21 +75,25 @@ void getbrightness() {
 void setTimerMode() {
   globalConfig.timerMode = server.arg("mode").toInt();
   saveConfig();
+  server.send(200);
 }
 
 void startTimer() {
   timerStartTime = millis();
-  isRunning = true;
+  isTimerRunning = true;
+  server.send(200);
 }
 
 void stopTimer() {
-  isRunning = false;
+  isTimerRunning = false;
+  server.send(200);
 }
 
 void setCountDown() {
   globalConfig.countdownMinutes = server.arg("min").toInt();
   globalConfig.countdownSeconds = server.arg("sec").toInt();
   saveConfig();
+  server.send(200);
 }
 
 void resetDefault() {
@@ -92,6 +101,7 @@ void resetDefault() {
   wipeEEPROM();
   saveConfig();
   WiFi.begin(globalConfig.ssid, globalConfig.password);
+  server.send(200);
 }
 
 void initServer() {
@@ -120,11 +130,11 @@ void initServer() {
 
 String getJsonConfigs(configs config, bool showWifiData) {
   DynamicJsonDocument jsonObject(JSON_OBJECT_SIZE(15));
-  if(showWifiData) {
+  if (showWifiData) {
     jsonObject["ssid"] = config.ssid;
     jsonObject["password"] = config.password;
   }
-  jsonObject["refreshVelocity"] = config.refreshVelocity;
+  jsonObject["refreshVelocity"] = map(config.refreshVelocity, 1, 100, 100, 1);
   jsonObject["useInvertedDigits"] = config.useInvertedDigits;
   jsonObject["color"] = config.color;
   jsonObject["colorMode"] = config.colorMode;
