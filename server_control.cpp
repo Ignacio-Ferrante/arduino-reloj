@@ -98,9 +98,8 @@ void setCountDown() {
 
 void resetDefault() {
   globalConfig = defaultConfig;
-  wipeEEPROM();
-  saveConfig();
   WiFi.begin(globalConfig.ssid, globalConfig.password);
+  saveConfig();
   server.send(200);
 }
 

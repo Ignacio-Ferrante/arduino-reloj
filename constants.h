@@ -13,7 +13,8 @@
 #include <EEPROM.h>
 #include <ArduinoJson.h>
 
-#define LED_SEGMENT_QUANTITY 2
+#define SEGMENT_LED_QUANTITY 2
+#define DOT_LED_QUANTITY 2
 #define LED_COUNT 60
 #define LED_PIN 16 // D0
 #define LIGHT_SENSOR_PIN A0
@@ -37,6 +38,7 @@ struct configs {
     int timerMode, countdownMinutes, countdownSeconds;
 };
 
+enum ColorMode { STATIC, RAINBOW, FLOW };
 enum TimerMode { CLOCK, COUNT, COUNTDOWN };
 
 extern configs defaultConfig, globalConfig;
@@ -46,7 +48,7 @@ extern int hours, minutes;
 extern bool isTimerRunning;
 extern unsigned long timerStartTime;
 
-extern int digits[10][7], invertedDigits[10][7];
+extern int segmentMap[10][7], invertedSegmentMap[10][7];
 
 void initializeClock();
 void updateTime();
@@ -61,8 +63,8 @@ void saveConfig();
 void wipeEEPROM();
 
 void showTime(int hour, int minutes);
-void showDigit(int position, int value);
+void showNumer(int number);
 void printAllSegments(int color, int bright);
-void turnOffAllDigits();
+void turnOffAllSegments();
 
 #endif

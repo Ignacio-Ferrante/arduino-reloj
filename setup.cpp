@@ -1,5 +1,9 @@
 #include "constants.h"
 
+void reboot(bool success) {
+  wipeEEPROM();
+}
+
 void initializeClock() {
   initializeEEPROM();
 
@@ -18,6 +22,8 @@ void initializeClock() {
   initServer();
   timeClient.begin();
   ElegantOTA.begin(&server);
+  ElegantOTA.onStart(wipeEEPROM);
+  ElegantOTA.onEnd(reboot);
 
   setTime(0, 0, 0, 1, 1, 2024);
 

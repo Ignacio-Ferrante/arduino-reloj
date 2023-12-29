@@ -27,7 +27,7 @@ int hours, minutes;
 bool isTimerRunning;
 unsigned long timerStartTime;
 
-int digits[10][7] = {
+int segmentMap[10][7] = {
   { 0, 1, 1, 1, 1, 1, 1 },  // 0
   { 0, 1, 0, 0, 0, 0, 1 },  // 1
   { 1, 0, 1, 1, 0, 1, 1 },  // 2
@@ -40,7 +40,7 @@ int digits[10][7] = {
   { 1, 1, 1, 0, 1, 1, 1 },  // 9
 };
 
-int invertedDigits[10][7] = {
+int invertedSegmentMap[10][7] = {
   { 0, 1, 1, 1, 1, 1, 1 },  // 0
   { 0, 0, 0, 1, 1, 0, 0 },  // 1
   { 1, 0, 1, 1, 0, 1, 1 },  // 2

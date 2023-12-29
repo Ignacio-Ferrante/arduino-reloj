@@ -33,7 +33,7 @@ void pausedControl() {
       showTime(globalConfig.countdownMinutes, globalConfig.countdownSeconds);
     }
   } else {
-    turnOffAllDigits();
+    turnOffAllSegments();
   }
 }
 

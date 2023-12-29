@@ -1,24 +1,17 @@
 #include "constants.h"
 
 bool nightTime;
-int brightness;
+int brightness, baseColor, variableColor;
 
-void printLed(int position) {
-  if (nightTime)
-    leds[position] = CHSV(1, 255, brightness);
-  else
-    leds[position] = CHSV(globalConfig.color, 255, brightness);
-}
-
-void updateBrightness() {
+int getBrightness() {
   int ligthRead = analogRead(LIGHT_SENSOR_PIN);
   int mappedBright = map(ligthRead, 0, 1024, 1, 255);
 
   if (nightTime)
-    brightness = mappedBright;
+    return mappedBright;
   else {
-    brightness = max(mappedBright, globalConfig.brightness);
-    brightness = min(255, (brightness * 3) / 2);
+    mappedBright = max(mappedBright, globalConfig.brightness);
+    return min(255, (mappedBright * 3) / 2);
   }
 }
 
@@ -27,55 +20,80 @@ bool isNightTime() {
     || (hours > globalConfig.nightTimeRange[0] || (hours == globalConfig.nightTimeRange[0] && minutes >= globalConfig.nightTimeRange[1]));
 }
 
-int nextColor = globalConfig.color;
-
-void showTime(int hour, int minutes) {
-  nightTime = isNightTime();
-  updateBrightness();
-
-  FastLED.clear();
-
-  int time[4] = { hour / 10, hour % 10, minutes / 10, minutes % 10 };
-
-  if (globalConfig.colorMode != 0 && !nightTime) {
-    nextColor++;
-    if (nextColor > 255)
-      nextColor = 0;
-    globalConfig.color = nextColor;
-  }
-
-  for (int i = 0; i < 4; i++) {
-    globalConfig.useInvertedDigits ? showDigit(i, time[3 - i]) : showDigit(i, time[i]);
-
-    if (globalConfig.colorMode == 2 && !nightTime)
-      globalConfig.color = (globalConfig.color + 10) % 255;
-
-    if (i == 1) {
-      for (int i = 0; i < 2 * LED_SEGMENT_QUANTITY; i++)
-        printLed(14 * LED_SEGMENT_QUANTITY + i);
-
-      if (globalConfig.colorMode == 2 && !nightTime)
-        globalConfig.color = (globalConfig.color + 10) % 255;
-    }
-  }
-
-  FastLED.show();
-  delay(10);
-  FastLED.show(); // disminuye el problema de la interrupcion por usar wifi
+void updateVariableColor() {
+  if (globalConfig.colorMode == FLOW)
+    variableColor = (variableColor + 10) % 255;
 }
 
-void showDigit(int position, int value) {
-  int offset = position * 7 * LED_SEGMENT_QUANTITY + ((position / 2) * 2 * LED_SEGMENT_QUANTITY);
+void printLed(int position, int color) {
+  if (nightTime)
+    leds[position] = CHSV(1, 255, brightness);
+  else if (globalConfig.colorMode == STATIC)
+    leds[position] = CHSV(globalConfig.color, 255, brightness);
+  else
+    leds[position] = CHSV(color, 255, brightness);
+}
 
-  for (int i = 0; i < 7 * LED_SEGMENT_QUANTITY; i++) {
-    int num = digits[value][i / LED_SEGMENT_QUANTITY];
-    int inNum = invertedDigits[value][i / LED_SEGMENT_QUANTITY];
+int calculateDigitOffset(int position) {
+  return position * 7 * SEGMENT_LED_QUANTITY + ((position / 2) * 2 * DOT_LED_QUANTITY);
+}
 
-    if ((globalConfig.useInvertedDigits == 0 && num == 1) || (globalConfig.useInvertedDigits == 1 && inNum == 1))
-      printLed(i + offset);
+void showDigit(int position, int digitMap[7], int color) {
+  int offset = calculateDigitOffset(position);
+
+  for (int i = 0; i < 7 * SEGMENT_LED_QUANTITY; i++) {
+    if (digitMap[i / SEGMENT_LED_QUANTITY])
+      printLed(i + offset, color);
     else
       leds[i + offset] = CHSV(0, 0, 0);
   }
+
+  updateVariableColor();
+}
+
+void showDot() {
+  for (int i = 0; i < 2 * DOT_LED_QUANTITY; i++)
+    printLed(14 * SEGMENT_LED_QUANTITY + i, variableColor);
+
+  updateVariableColor();
+}
+
+void showTime(int digit[4]) {
+  nightTime = isNightTime();
+  brightness = getBrightness();
+  FastLED.clear();
+
+  baseColor = (baseColor + 1) % 255;
+  variableColor = baseColor;
+
+  for (int i = 0; i < 4; i++) {
+    globalConfig.useInvertedDigits
+      ? showDigit(i, invertedSegmentMap[digit[3 - i]], variableColor)
+      : showDigit(i, segmentMap[digit[i]], variableColor);
+
+    if (i == 1)
+      showDot();
+  }
+
+  FastLED.show();
+  delayMicroseconds(10000);
+  FastLED.show(); // disminuye el problema de la interrupcion por usar wifi
+}
+
+void showTime(int hour, int minutes) {
+  int digit[4] = { hour / 10, hour % 10, minutes / 10, minutes % 10 };
+  showTime(digit);
+}
+
+void showNumer(int number) {
+  int digit[4];
+
+  for (int i = 3; i > 0; i--) {
+    digit[i] = number % 10;
+    number /= 10;
+  }
+
+  showTime(digit);
 }
 
 void printAllSegments(int color, int bright) {
@@ -83,7 +101,7 @@ void printAllSegments(int color, int bright) {
     leds[i] = CHSV(color, 255, bright);
 }
 
-void turnOffAllDigits() {
+void turnOffAllSegments() {
   FastLED.clear();
   FastLED.show();
 }
