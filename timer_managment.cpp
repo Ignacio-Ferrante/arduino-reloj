@@ -5,14 +5,18 @@ unsigned long startTime, elapsedTime;
 int minutesDigits, secondsDigits;
 
 void resetTimer() {
+  startTime = 0;
+  elapsedTime = 0;
   minutesDigits = 0;
   secondsDigits = 0;
 }
 
 void limitControl(int limit) {
-  isRunning = minutesDigits != limit || secondsDigits != limit;
-  isFinished = true;
-  resetTimer();
+  if (minutesDigits == limit && secondsDigits == limit) {
+    isRunning = false;
+    isFinished = true;
+    resetTimer();
+  }
 }
 
 void runningControl() {
@@ -54,14 +58,18 @@ void timerManagment() {
 }
 
 void startTimer() {
-  startTime = millis() - elapsedTime;
+  if (!isRunning)
+    startTime = millis() - elapsedTime;
+  
   isRunning = true;
   isStop = false;
 }
 
 void pauseTimer() {
+  if (isRunning)
+    elapsedTime = millis() - startTime;
+
   isRunning = false;
-  elapsedTime = millis() - startTime;
 }
 
 void stopTimer() {

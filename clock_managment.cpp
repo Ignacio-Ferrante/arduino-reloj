@@ -1,9 +1,10 @@
 #include "constants.h"
 
 unsigned long lastSync;
+bool isUpdated = false;
 
 bool shouldUpdate() {
-  return millis() - lastSync > 10 * 60 * 1000; //10m
+  return millis() - lastSync > 10 * 60 * 1000 || !isUpdated; //10m
 }
 
 void updateTime() {
@@ -15,6 +16,7 @@ void updateTime() {
     timeClient.update();
     hours = timeClient.getHours();
     minutes = timeClient.getMinutes();
-    setTime(hours, minutes, 0, 1, 1, 2024);
+    setTime(hours, minutes, timeClient.getSeconds(), 1, 1, 2024);
+    isUpdated = true;
   }
 }

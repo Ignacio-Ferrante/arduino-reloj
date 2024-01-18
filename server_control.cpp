@@ -82,15 +82,16 @@ void syncTime() {
 void setTimerMode() {
   globalConfig.timerMode = server.arg("mode").toInt();
   saveConfig();
+  stopTimer();
   server.send(200);
 }
 
-void startTimer() {
+void setStartTimer() {
   startTimer();
   server.send(200);
 }
 
-void pauseTimer() {
+void setPauseTimer() {
   pauseTimer();
   server.send(200);
 }
@@ -128,8 +129,8 @@ void initServer() {
   server.on("/getbrightness", getbrightness);
   server.on("/settime", syncTime);
   server.on("/timermode", setTimerMode);
-  server.on("/starttimer", startTimer);
-  server.on("/pausetimer", pauseTimer);
+  server.on("/starttimer", setStartTimer);
+  server.on("/pausetimer", setPauseTimer);
   server.on("/stoptimer", setStopTimer);
   server.on("/setcountdown", setCountDown);
 
