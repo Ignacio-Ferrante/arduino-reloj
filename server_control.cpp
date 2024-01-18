@@ -72,6 +72,13 @@ void getbrightness() {
   server.send(200, "application/json", jsonStr);
 }
 
+void syncTime() {
+  hours = server.arg("hour").toInt();
+  minutes = server.arg("min").toInt();
+  setTime(hours, minutes, 0, 1, 1, 2024);
+  server.send(200);
+}
+
 void setTimerMode() {
   globalConfig.timerMode = server.arg("mode").toInt();
   saveConfig();
@@ -79,13 +86,17 @@ void setTimerMode() {
 }
 
 void startTimer() {
-  timerStartTime = millis();
-  isTimerRunning = true;
+  startTimer();
   server.send(200);
 }
 
-void stopTimer() {
-  isTimerRunning = false;
+void pauseTimer() {
+  pauseTimer();
+  server.send(200);
+}
+
+void setStopTimer() {
+  stopTimer();
   server.send(200);
 }
 
@@ -115,11 +126,12 @@ void initServer() {
   server.on("/brightness", setBrightness);
   server.on("/nighttime", setNightTimeRange);
   server.on("/getbrightness", getbrightness);
+  server.on("/settime", syncTime);
   server.on("/timermode", setTimerMode);
   server.on("/starttimer", startTimer);
-  server.on("/stoptimer", stopTimer);
+  server.on("/pausetimer", pauseTimer);
+  server.on("/stoptimer", setStopTimer);
   server.on("/setcountdown", setCountDown);
-  server.on("/resetcrono", resetCrono);
 
   server.on("/resetdefault", resetDefault);
 

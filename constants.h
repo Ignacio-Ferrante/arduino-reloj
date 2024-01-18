@@ -45,15 +45,14 @@ extern configs defaultConfig, globalConfig;
 
 extern int hours, minutes;
 
-extern bool isTimerRunning;
-extern unsigned long timerStartTime;
-
 extern int segmentMap[10][7], invertedSegmentMap[10][7];
 
 void initializeClock();
 void updateTime();
 void timerManagment();
-void resetCrono();
+void startTimer();
+void pauseTimer();
+void stopTimer();
 
 String getJsonConfigs(configs config, bool showWifiData);
 void initServer();

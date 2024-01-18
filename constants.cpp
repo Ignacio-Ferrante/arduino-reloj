@@ -24,9 +24,6 @@ configs defaultConfig = {
 
 int hours, minutes;
 
-bool isTimerRunning;
-unsigned long timerStartTime;
-
 int segmentMap[10][7] = {
   { 0, 1, 1, 1, 1, 1, 1 },  // 0
   { 0, 1, 0, 0, 0, 0, 1 },  // 1
