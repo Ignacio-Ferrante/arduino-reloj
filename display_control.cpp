@@ -34,7 +34,7 @@ void printLed(int position, int color) {
   else if (globalConfig.colorMode == STATIC)
     leds[position] = CHSV(globalConfig.color, 255, brightness);
   else
-    leds[position] = CHSV(color, 255, max(brightness, 30));
+    leds[position] = CHSV(color, 255, max(brightness, 100));
 }
 
 int calculateDigitOffset(int position) {

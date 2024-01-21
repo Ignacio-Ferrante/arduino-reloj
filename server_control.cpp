@@ -51,7 +51,7 @@ void setColorMode() {
 }
 
 void setBrightness() {
-  globalConfig.brightness = map(server.arg("brightness").toInt(), 1, 100, 1, 255);
+  globalConfig.brightness = map(server.arg("brightness").toInt(), 1, 100, 50, 255);
   server.send(200);
 }
 
@@ -156,7 +156,7 @@ String getJsonConfigs(configs config, bool showWifiData) {
   jsonObject["useInvertedDigits"] = config.useInvertedDigits;
   jsonObject["color"] = config.color;
   jsonObject["colorMode"] = config.colorMode;
-  jsonObject["brightness"] = map(config.brightness, 1, 255, 1, 100);
+  jsonObject["brightness"] = map(config.brightness, 50, 255, 1, 100);
   jsonObject["autoBrightness"] = config.autoBrightness;
   jsonObject["nightTimeRange"][0] = config.nightTimeRange[0];
   jsonObject["nightTimeRange"][1] = config.nightTimeRange[1];
