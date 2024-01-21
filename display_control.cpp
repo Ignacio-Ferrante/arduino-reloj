@@ -4,14 +4,17 @@ bool nightTime;
 int brightness, baseColor, variableColor;
 
 int getBrightness() {
+  if (!globalConfig.autoBrightness)
+    return globalConfig.brightness;
+
   int ligthRead = analogRead(LIGHT_SENSOR_PIN);
   int mappedBright = map(ligthRead, 0, 1024, 1, 255);
 
   if (nightTime)
     return mappedBright;
   else {
-    mappedBright = max(mappedBright, globalConfig.brightness);
-    return min(255, (mappedBright * 3) / 2);
+    mappedBright = max(mappedBright * 2, globalConfig.brightness);
+    return min(255, mappedBright);
   }
 }
 
@@ -31,7 +34,7 @@ void printLed(int position, int color) {
   else if (globalConfig.colorMode == STATIC)
     leds[position] = CHSV(globalConfig.color, 255, brightness);
   else
-    leds[position] = CHSV(color, 255, max(brightness, 20));
+    leds[position] = CHSV(color, 255, max(brightness, 30));
 }
 
 int calculateDigitOffset(int position) {

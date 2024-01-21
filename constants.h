@@ -32,6 +32,7 @@ struct configs {
     int useInvertedDigits;
 
     int color, colorMode, brightness;
+    bool autoBrightness;
 
     int nightTimeRange[4];
 

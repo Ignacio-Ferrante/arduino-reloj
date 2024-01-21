@@ -55,6 +55,11 @@ void setBrightness() {
   server.send(200);
 }
 
+void setAutoBrightness() {
+  globalConfig.autoBrightness = server.arg("status").toInt() == 0 ? false : true;
+  server.send(200);
+}
+
 void setNightTimeRange() {
   for (int i = 0; i < 4; i++)
     globalConfig.nightTimeRange[i] = server.arg(String(i)).toInt();
@@ -127,6 +132,7 @@ void initServer() {
   server.on("/brightness", setBrightness);
   server.on("/nighttime", setNightTimeRange);
   server.on("/getbrightness", getbrightness);
+  server.on("/autobrightness", setAutoBrightness);
   server.on("/settime", syncTime);
   server.on("/timermode", setTimerMode);
   server.on("/starttimer", setStartTimer);
@@ -141,7 +147,7 @@ void initServer() {
 
 
 String getJsonConfigs(configs config, bool showWifiData) {
-  DynamicJsonDocument jsonObject(JSON_OBJECT_SIZE(15));
+  DynamicJsonDocument jsonObject(JSON_OBJECT_SIZE(16));
   if (showWifiData) {
     jsonObject["ssid"] = config.ssid;
     jsonObject["password"] = config.password;
@@ -151,6 +157,7 @@ String getJsonConfigs(configs config, bool showWifiData) {
   jsonObject["color"] = config.color;
   jsonObject["colorMode"] = config.colorMode;
   jsonObject["brightness"] = map(config.brightness, 1, 255, 1, 100);
+  jsonObject["autoBrightness"] = config.autoBrightness;
   jsonObject["nightTimeRange"][0] = config.nightTimeRange[0];
   jsonObject["nightTimeRange"][1] = config.nightTimeRange[1];
   jsonObject["nightTimeRange"][2] = config.nightTimeRange[2];

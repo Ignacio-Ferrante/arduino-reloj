@@ -16,6 +16,7 @@ configs defaultConfig = {
   .color = 17,
   .colorMode = 0,
   .brightness = 100,
+  .autoBrightness = true,
   .nightTimeRange = {22, 30, 7, 0},
   .timerMode = 0,
   .countdownMinutes = 5,
