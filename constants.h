@@ -51,6 +51,7 @@ extern int segmentMap[10][7], invertedSegmentMap[10][7];
 void initializeClock();
 void updateTime();
 void timerManagment();
+bool isTimerActive();
 void startTimer();
 void pauseTimer();
 void stopTimer();

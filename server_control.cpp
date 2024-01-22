@@ -147,7 +147,7 @@ void initServer() {
 
 
 String getJsonConfigs(configs config, bool showWifiData) {
-  DynamicJsonDocument jsonObject(JSON_OBJECT_SIZE(16));
+  DynamicJsonDocument jsonObject(JSON_OBJECT_SIZE(17));
   if (showWifiData) {
     jsonObject["ssid"] = config.ssid;
     jsonObject["password"] = config.password;
@@ -163,6 +163,7 @@ String getJsonConfigs(configs config, bool showWifiData) {
   jsonObject["nightTimeRange"][2] = config.nightTimeRange[2];
   jsonObject["nightTimeRange"][3] = config.nightTimeRange[3];
   jsonObject["timerMode"] = config.timerMode;
+  jsonObject["isTimerActive"] = isTimerActive();
   jsonObject["countdownMinutes"] = config.countdownMinutes;
   jsonObject["countdownSeconds"] = config.countdownSeconds;
 

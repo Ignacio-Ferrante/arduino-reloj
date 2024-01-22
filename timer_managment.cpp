@@ -57,6 +57,10 @@ void timerManagment() {
   isRunning ? runningControl() : pausedControl();
 }
 
+bool isTimerActive() {
+  return isRunning;
+}
+
 void startTimer() {
   if (!isRunning)
     startTime = millis() - elapsedTime;
