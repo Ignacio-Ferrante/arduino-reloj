@@ -15,6 +15,10 @@
     .countdown-activated {
       display: none;
     }
+
+    .set-time {
+      display: none;
+    }
   </style>
 </head>
 
@@ -74,6 +78,14 @@
     <button onclick='stopTimer()'>Parar</button>
   </div>
 
+  <div class="set-time">
+    <!-- Selector hora offline -->
+    <h2>Hora offline</h2>
+    <input type='number' min='0' max='23' value='0' id='hour'> :
+    <input type='number' min='0' max='59' value='0' id='minute'>
+    <button onclick='settime()'>Enviar</button>
+  </div>
+
   <!-- Selector de hora de inicio -->
   <h2>Modo nocturno</h2>
   <input type='number' min='0' max='23' value='0' id='startHour'> :
@@ -81,10 +93,16 @@
   <input type='number' min='0' max='23' value='0' id='endHour'> :
   <input type='number' min='0' max='59' value='0' id='endMinute'>
   <button onclick='setNightTime()'>Enviar</button>
+  <label for='nightTimeEnabledCheckbox'>Modo nocturno habilitado</label>
+  <input type='checkbox' id='nightTimeEnabledCheckbox' onchange='toggleNightTimeEnabled()'>
 
   <!-- Botón de alternancia para invertir dígitos -->
   <h2>Invertir Digitos</h2>
   <button onclick='toggleInvertedDigits()' id="invertDigitsButton">Cambiar</button>
+
+  <!-- Reiniciar memoria -->
+  <h3>Reiniciar memoria</h3>
+  <button onclick='resetDefault()'>Reset</button>
 
   <script>
     var invertedValue, startPauseTimerValue;
@@ -102,6 +120,10 @@
     var countdownMinutes = document.getElementById('countdownMinutes');
     var countdownSeconds = document.getElementById('countdownSeconds');
 
+    var hour = document.getElementById('hour');
+    var minute = document.getElementById('minute');
+
+    var nightTimeEnabledCheckbox = document.getElementById('nightTimeEnabledCheckbox');
     var startHour = document.getElementById('startHour');
     var startMinute = document.getElementById('startMinute');
     var endHour = document.getElementById('endHour');
@@ -157,10 +179,24 @@
       colorVisualizer.style.backgroundColor = 'hsl(' + color * 1.41 + ', 100%, 50%)';
     }
 
+    function settime() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/settime?hour=' + hour + '&min=' + minute, true);
+      xhr.send();
+    }
+
     function setNightTime() {
       var xhr = new XMLHttpRequest();
       var url = '/nighttime?0=' + startHour.value + '&1=' + startMinute.value + '&2=' + endHour.value + '&3=' + endMinute.value;
       xhr.open('GET', url, true);
+      xhr.send();
+    }
+
+    function toggleNightTimeEnabled() {
+      var status = nightTimeEnabledCheckbox.checked ? 1 : 0;
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/nighttimeenabled?status=' + status, true);
       xhr.send();
     }
 
@@ -263,6 +299,12 @@
       xhr.send();
     }
 
+    function resetDefault() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/resetdefault', true);
+      xhr.send();
+    }
+
     function loadConfig() {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', '/config', true);
@@ -295,6 +337,7 @@
           isTimerActive = config.isTimerActive;
           updateStartPauseTimerButtonLabel(isTimerActive === true ? 1 : 0);
 
+          nightTimeEnabledCheckbox.checked = config.nightTimeEnabled;
           startHour.value = parseInt(config.nightTimeRange[0]);
           startMinute.value = parseInt(config.nightTimeRange[1]);
           endHour.value = parseInt(config.nightTimeRange[2]);

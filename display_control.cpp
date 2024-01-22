@@ -19,8 +19,10 @@ int getBrightness() {
 }
 
 bool isNightTime() {
-  return (hours < globalConfig.nightTimeRange[2] || (hours == globalConfig.nightTimeRange[2] && minutes < globalConfig.nightTimeRange[3]))
+  bool isTime = (hours < globalConfig.nightTimeRange[2] || (hours == globalConfig.nightTimeRange[2] && minutes < globalConfig.nightTimeRange[3]))
     || (hours > globalConfig.nightTimeRange[0] || (hours == globalConfig.nightTimeRange[0] && minutes >= globalConfig.nightTimeRange[1]));
+    
+  return globalConfig.nightTimeEnabled && isTime;
 }
 
 void updateVariableColor() {
