@@ -2,7 +2,8 @@
 <html lang="es">
 
 <head>
-  <title>Configuracion del Reloj</title>
+  <title>Configuración del Reloj</title>
+  <meta charset="UTF-8">
   <style>
     .color-static {
       display: none;
@@ -23,7 +24,7 @@
 </head>
 
 <body>
-  <h1>Configuracion del Reloj</h1>
+  <h1>Configuración del Reloj</h1>
   <!-- Slider de velocidad -->
   <h2>Velocidad</h2>
   <input type='range' min='1' max='100' value='1' id='velocitySlider'>
@@ -35,8 +36,8 @@
     <h2>Modo de color</h2>
   </label>
   <select id="colorModeSelector" onchange="setColorMode()">
-    <option value="0">Color Estatico</option>
-    <option value="1">Arcoiris</option>
+    <option value="0">Color Estático</option>
+    <option value="1">Arcoíris</option>
     <option value="2">Flujo</option>
   </select>
 
@@ -50,11 +51,11 @@
   <h2>Brillo</h2>
   <input type='range' min='1' max='100' value='1' id='brightSlider' oninput='setBright()'>
   <div id='brightValue'>1</div>
-  <label for='autoBrightnessCheckbox'>Brillo Automatico</label>
+  <label for='autoBrightnessCheckbox'>Brillo Automático</label>
   <input type='checkbox' id='autoBrightnessCheckbox' onchange='toggleAutoBrightness()'>
 
   <p></p>
-  <p style="display: inline-block;">Brillo Actual en la habitacion: <span id="currentBrightness"
+  <p style="display: inline-block;">Brillo Actual en la habitación: <span id="currentBrightness"
       style="margin-left: 10px;">-</span></p>
 
   <!-- modo del reloj -->
@@ -63,11 +64,12 @@
   </label>
   <select id="timerModeSelector" onchange="setTimerMode()">
     <option value="0">Reloj</option>
-    <option value="1">Cronometro</option>
+    <option value="1">Cronómetro</option>
     <option value="2">Temporizador</option>
   </select>
 
   <div class="timer-activated">
+    <br>
     <div class="countdown-activated">
       <input type='number' min='0' max='99' value='0' id='countdownMinutes'> :
       <input type='number' min='0' max='59' value='0' id='countdownSeconds'>
@@ -76,15 +78,18 @@
 
     <button onclick='startPauseTimer()' id="startPauseTimerButton">Cambiar</button>
     <button onclick='stopTimer()'>Parar</button>
+    
   </div>
-
+  
+  <!-- Selector hora offline -->
   <div class="set-time">
-    <!-- Selector hora offline -->
-    <h2>Hora offline</h2>
+    <br>
+    <label for="hour">Hora offline: </label>
     <input type='number' min='0' max='23' value='0' id='hour'> :
     <input type='number' min='0' max='59' value='0' id='minute'>
     <button onclick='settime()'>Enviar</button>
   </div>
+
 
   <!-- Selector de hora de inicio -->
   <h2>Modo nocturno</h2>
@@ -96,13 +101,26 @@
   <label for='nightTimeEnabledCheckbox'>Modo nocturno habilitado</label>
   <input type='checkbox' id='nightTimeEnabledCheckbox' onchange='toggleNightTimeEnabled()'>
 
+  <!-- Configuración de WiFi -->
+  <h2>Configuración de WiFi</h2>
+  <label for="wifiSSID">SSID:</label>
+  <input type="text" id="wifiSSID"> <br>
+  <label for="wifiPassword">Contraseña:</label>
+  <input type="password" id="wifiPassword"> <br>
+  <button onclick="setWifiConfig()">Conectar WiFi</button>
+
+  <br><br>
+
+  <div>
   <!-- Botón de alternancia para invertir dígitos -->
-  <h2>Invertir Digitos</h2>
-  <button onclick='toggleInvertedDigits()' id="invertDigitsButton">Cambiar</button>
+  <button onclick='toggleInvertedDigits()'>Invertir Dígitos</button>
 
   <!-- Reiniciar memoria -->
-  <h3>Reiniciar memoria</h3>
-  <button onclick='resetDefault()'>Reset</button>
+  <button onclick='resetDefault()'>Reset memory</button>
+
+  <!-- Reiniciar WiFi -->
+  <button onclick='resetWifi()'>Reset WiFi</button>
+  </div>
 
   <script>
     var invertedValue, startPauseTimerValue;
@@ -128,6 +146,9 @@
     var startMinute = document.getElementById('startMinute');
     var endHour = document.getElementById('endHour');
     var endMinute = document.getElementById('endMinute');
+
+    var wifiSSID = document.getElementById('wifiSSID');
+    var wifiPassword = document.getElementById('wifiPassword');
 
     velocitySlider.oninput = function () { velocityValue.innerHTML = this.value; };
 
@@ -205,11 +226,6 @@
       invertedValue = invertedValue === 1 ? 0 : 1;
       xhr.open('GET', '/inverteddigits?useInvertedDigits=' + invertedValue, true);
       xhr.send();
-      updateInvertButtonLabel(invertedValue);
-    }
-
-    function updateInvertButtonLabel(value) {
-      invertDigitsButton.innerHTML = value === 1 ? 'Desactivar' : 'Activar';
     }
 
     var lastBrightValue = brightSlider.value;
@@ -255,10 +271,13 @@
 
     function setTimerMode() {
       var timerActivatedGroup = document.querySelector('.timer-activated');
+      var setTimeGroup = document.querySelector('.set-time');
 
-      if (timerModeSelector.value === '0')
+      if (timerModeSelector.value === '0') {
         timerActivatedGroup.style.display = 'none';
-      else {
+        setTimeGroup.style.display = 'block';
+      } else {
+        setTimeGroup.style.display = 'none';
         timerActivatedGroup.style.display = 'block';
         document.querySelector('.countdown-activated').style.display = timerModeSelector.value === '2' ? 'block' : 'none';
       }
@@ -299,9 +318,21 @@
       xhr.send();
     }
 
+    function setWifiConfig() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/wifi?ssid=' + wifiSSID.value + '&password=' + wifiPassword.value, true);
+      xhr.send();
+    }
+
     function resetDefault() {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', '/resetdefault', true);
+      xhr.send();
+    }
+    
+    function resetWifi() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/resetwifi', true);
       xhr.send();
     }
 
@@ -315,7 +346,6 @@
           velocitySlider.value = config.refreshVelocity;
           velocityValue.textContent = config.refreshVelocity;
           invertedValue = parseInt(config.useInvertedDigits);
-          updateInvertButtonLabel(invertedValue);
           colorModeSelector.value = parseInt(config.colorMode);
           document.querySelector('.color-static').style.display = colorModeSelector.value === '0' ? 'block' : 'none';
 
@@ -330,6 +360,7 @@
           autoBrightnessCheckbox.checked = config.autoBrightness;
 
           timerModeSelector.value = parseInt(config.timerMode);
+          document.querySelector('.set-time').style.display = timerModeSelector.value === '0' ? 'block' : 'none';
           document.querySelector('.timer-activated').style.display = timerModeSelector.value === '0' ? 'none' : 'block';
           document.querySelector('.countdown-activated').style.display = timerModeSelector.value === '2' ? 'block' : 'none';
           countdownMinutes.value = parseInt(config.countdownMinutes);
