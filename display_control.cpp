@@ -13,14 +13,26 @@ int getBrightness() {
   if (nightTime)
     return mappedBright;
   else {
-    mappedBright = max(mappedBright * 2, globalConfig.brightness);
+    mappedBright = max(mappedBright * 7 / 4, globalConfig.brightness);
     return min(255, mappedBright);
   }
 }
 
 bool isNightTime() {
-  bool isTime = (hours < globalConfig.nightTimeRange[2] || (hours == globalConfig.nightTimeRange[2] && minutes < globalConfig.nightTimeRange[3]))
-    || (hours > globalConfig.nightTimeRange[0] || (hours == globalConfig.nightTimeRange[0] && minutes >= globalConfig.nightTimeRange[1]));
+  int startHour = globalConfig.nightTimeRange[0];
+  int startMinute = globalConfig.nightTimeRange[1];
+  int endHour = globalConfig.nightTimeRange[2];
+  int endMinute = globalConfig.nightTimeRange[3];
+
+  bool isTime;
+
+  if (startHour == endHour) {
+    isTime = (hours == startHour) && (minutes >= startMinute) && (minutes < endMinute);
+  } else if (startHour < endHour) {
+    isTime = (hours > startHour || (hours == startHour && minutes >= startMinute)) && (hours < endHour || (hours == endHour && minutes < endMinute));
+  } else {
+    isTime = (hours > startHour || (hours == startHour && minutes >= startMinute)) || (hours < endHour || (hours == endHour && minutes < endMinute));
+  }
     
   return globalConfig.nightTimeEnabled && isTime;
 }

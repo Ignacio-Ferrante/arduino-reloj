@@ -4,7 +4,7 @@ unsigned long lastSync;
 bool isUpdated = false;
 
 bool shouldUpdate() {
-  return millis() - lastSync > 10 * 60 * 1000 || !isUpdated; //10m
+  return !isUpdated || millis() - lastSync > 10 * 60 * 1000; //10m
 }
 
 void updateTime() {
@@ -19,4 +19,8 @@ void updateTime() {
     setTime(hours, minutes, timeClient.getSeconds(), 1, 1, 2024);
     isUpdated = true;
   }
+}
+
+void forceUpdateTime() {
+  isUpdated = false;
 }

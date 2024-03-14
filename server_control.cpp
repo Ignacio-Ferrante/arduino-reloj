@@ -21,8 +21,15 @@ void setWifi() {
   globalConfig.ssid = server.arg("ssid");
   globalConfig.password = server.arg("password");
 
-  WiFi.begin(globalConfig.ssid, globalConfig.password);
   saveConfig();
+  forceUpdateTime();
+  WiFi.begin(globalConfig.ssid, globalConfig.password);
+  server.send(200, "text/plain", "Conectando al WiFi" + globalConfig.ssid + " : " + globalConfig.password);
+}
+
+void resetWifi() {
+  forceUpdateTime();
+  WiFi.begin(globalConfig.ssid, globalConfig.password);
   server.send(200, "text/plain", "Conectando al WiFi" + globalConfig.ssid + " : " + globalConfig.password);
 }
 
@@ -119,10 +126,12 @@ void setCountDown() {
 }
 
 void resetDefault() {
+  wipeEEPROM();
   globalConfig = defaultConfig;
-  WiFi.begin(globalConfig.ssid, globalConfig.password);
+  forceUpdateTime();
   saveConfig();
-  server.send(200);
+  WiFi.begin(defaultConfig.ssid, defaultConfig.password);
+  server.send(200, "text/plain", "Conectando al WiFi" + globalConfig.ssid + " : " + globalConfig.password);
 }
 
 void initServer() {
@@ -130,6 +139,7 @@ void initServer() {
 
   server.on("/config", getConfigs);
   server.on("/wifi", setWifi);
+  server.on("/resetwifi", resetWifi);
   server.on("/velocity", setVelocity);
   server.on("/inverteddigits", setUseInvertedDigits);
   server.on("/color", setColor);

@@ -31,7 +31,7 @@ bool isEEPROMEmpty() {
 }
 
 void initializeEEPROM() {
-  EEPROM.begin(sizeof(defaultConfig) + sizeof(globalConfig));
+  EEPROM.begin(2 * sizeof(defaultConfig));
 
   if (isEEPROMEmpty()) {
     EEPROM.put(0, defaultConfig);

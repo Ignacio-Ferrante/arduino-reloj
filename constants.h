@@ -50,6 +50,7 @@ extern int segmentMap[10][7], invertedSegmentMap[10][7];
 
 void initializeClock();
 void updateTime();
+void forceUpdateTime();
 void timerManagment();
 bool isTimerActive();
 void startTimer();
