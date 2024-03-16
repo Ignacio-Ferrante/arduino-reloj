@@ -9,6 +9,10 @@
       display: none;
     }
 
+    .velocity {
+      display: none;
+    }
+
     .timer-activated {
       display: none;
     }
@@ -25,13 +29,7 @@
 
 <body>
   <h1>Configuración del Reloj</h1>
-  <!-- Slider de velocidad -->
-  <h2>Velocidad</h2>
-  <input type='range' min='1' max='100' value='1' id='velocitySlider'>
-  <button onclick='setVelocity()'>Enviar</button>
-  <div id='velocityValue'>1</div>
 
-  <!-- modo de color -->
   <label for="colorModeSelector">
     <h2>Modo de color</h2>
   </label>
@@ -47,18 +45,17 @@
     <div id='colorValue'>1</div>
   </div>
 
-  <!-- slider brillo -->
+  <div class="velocity">
+    <label for="velocitySlider">Velocidad: </label>
+    <input type='range' min='1' max='100' value='1' id='velocitySlider' oninput='setVelocity()'>
+  </div>
+
   <h2>Brillo</h2>
   <input type='range' min='1' max='100' value='1' id='brightSlider' oninput='setBright()'>
-  <div id='brightValue'>1</div>
   <label for='autoBrightnessCheckbox'>Brillo Automático</label>
   <input type='checkbox' id='autoBrightnessCheckbox' onchange='toggleAutoBrightness()'>
+  <div id='brightValue'>1</div>
 
-  <p></p>
-  <p style="display: inline-block;">Brillo Actual en la habitación: <span id="currentBrightness"
-      style="margin-left: 10px;">-</span></p>
-
-  <!-- modo del reloj -->
   <label for="timerModeSelector">
     <h2>Modo del reloj</h2>
   </label>
@@ -78,10 +75,8 @@
 
     <button onclick='startPauseTimer()' id="startPauseTimerButton">Cambiar</button>
     <button onclick='stopTimer()'>Parar</button>
-    
   </div>
-  
-  <!-- Selector hora offline -->
+
   <div class="set-time">
     <br>
     <label for="hour">Hora offline: </label>
@@ -90,18 +85,15 @@
     <button onclick='settime()'>Enviar</button>
   </div>
 
-
-  <!-- Selector de hora de inicio -->
   <h2>Modo nocturno</h2>
   <input type='number' min='0' max='23' value='0' id='startHour'> :
   <input type='number' min='0' max='59' value='0' id='startMinute'> -
   <input type='number' min='0' max='23' value='0' id='endHour'> :
   <input type='number' min='0' max='59' value='0' id='endMinute'>
   <button onclick='setNightTime()'>Enviar</button>
-  <label for='nightTimeEnabledCheckbox'>Modo nocturno habilitado</label>
+  <label for='nightTimeEnabledCheckbox'>Habilitado</label>
   <input type='checkbox' id='nightTimeEnabledCheckbox' onchange='toggleNightTimeEnabled()'>
 
-  <!-- Configuración de WiFi -->
   <h2>Configuración de WiFi</h2>
   <label for="wifiSSID">SSID:</label>
   <input type="text" id="wifiSSID"> <br>
@@ -112,20 +104,14 @@
   <br><br>
 
   <div>
-  <!-- Botón de alternancia para invertir dígitos -->
-  <button onclick='toggleInvertedDigits()'>Invertir Dígitos</button>
-
-  <!-- Reiniciar memoria -->
-  <button onclick='resetDefault()'>Reset memory</button>
-
-  <!-- Reiniciar WiFi -->
-  <button onclick='resetWifi()'>Reset WiFi</button>
+    <button onclick='toggleInvertedDigits()'>Invertir Dígitos</button>
+    <button onclick='resetDefault()'>Reset memory</button>
+    <button onclick='resetWifi()'>Reset WiFi</button>
   </div>
 
   <script>
     var invertedValue, startPauseTimerValue;
     var velocitySlider = document.getElementById('velocitySlider');
-    var velocityValue = document.getElementById('velocityValue');
     var colorModeSelector = document.getElementById("colorModeSelector");
     var colorSlider = document.getElementById('colorSlider');
     var colorValue = document.getElementById('colorValue');
@@ -150,16 +136,24 @@
     var wifiSSID = document.getElementById('wifiSSID');
     var wifiPassword = document.getElementById('wifiPassword');
 
-    velocitySlider.oninput = function () { velocityValue.innerHTML = this.value; };
+    const setColor = () => sendRequest("/color?", "color=" + colorSlider.value);
+    const settime = () => sendRequest("/settime?", "hour=" + hour, "min=" + minute);
+    const setNightTime = () => sendRequest("/nighttime?", "0=" + startHour.value, "1=" + startMinute.value, "2=" + endHour.value, "3=" + endMinute.value);
+    const toggleNightTimeEnabled = () => sendRequest("/nighttimeenabled?", "status=" + (nightTimeEnabledCheckbox.checked ? 1 : 0));
+    const toggleAutoBrightness = () => sendRequest("/autobrightness?", "status=" + (autoBrightnessCheckbox.checked ? 1 : 0));
+    const setCountdown = () => sendRequest("/setcountdown?", "min=" + countdownMinutes.value, 'sec=' + countdownSeconds.value);
+    const setWifiConfig = () => sendRequest("/wifi?", "ssid=" + wifiSSID.value, 'password=' + wifiPassword.value);
+    const resetDefault = () => sendRequest("/resetdefault");
+    const resetWifi = () => sendRequest("/resetwifi");
 
-    function setVelocity() {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/velocity?velocity=' + velocitySlider.value, true);
-      xhr.send();
+    function toggleInvertedDigits() {
+      invertedValue = invertedValue === 1 ? 0 : 1;
+      sendRequest("/inverteddigits?", "useInvertedDigits=" + invertedValue);
     }
 
     function setColorMode() {
       var colorStaticGroup = document.querySelector('.color-static');
+      var velocityGroup = document.querySelector('.velocity');
 
       if (colorModeSelector.value === '0') {
         var xhr = new XMLHttpRequest();
@@ -173,16 +167,16 @@
             updateColorVisualizer(color);
             colorValue.textContent = color;
             colorStaticGroup.style.display = 'block';
+            velocityGroup.style.display = 'none';
           }
         };
         xhr.send();
       } else {
         colorStaticGroup.style.display = 'none';
+        velocityGroup.style.display = 'block';
       }
 
-      var xhr2 = new XMLHttpRequest();
-      xhr2.open('GET', '/colormode?mode=' + colorModeSelector.value, true);
-      xhr2.send();
+      sendRequest("/colormode?", "mode=" + colorModeSelector.value);
     }
 
     colorSlider.oninput = function () {
@@ -190,83 +184,42 @@
       updateColorVisualizer(this.value);
     };
 
-    function setColor() {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/color?color=' + colorSlider.value, true);
-      xhr.send();
-    }
-
     function updateColorVisualizer(color) {
       colorVisualizer.style.backgroundColor = 'hsl(' + color * 1.41 + ', 100%, 50%)';
-    }
-
-    function settime() {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/settime?hour=' + hour + '&min=' + minute, true);
-      xhr.send();
-    }
-
-    function setNightTime() {
-      var xhr = new XMLHttpRequest();
-      var url = '/nighttime?0=' + startHour.value + '&1=' + startMinute.value + '&2=' + endHour.value + '&3=' + endMinute.value;
-      xhr.open('GET', url, true);
-      xhr.send();
-    }
-
-    function toggleNightTimeEnabled() {
-      var status = nightTimeEnabledCheckbox.checked ? 1 : 0;
-
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/nighttimeenabled?status=' + status, true);
-      xhr.send();
-    }
-
-    function toggleInvertedDigits() {
-      var xhr = new XMLHttpRequest();
-      invertedValue = invertedValue === 1 ? 0 : 1;
-      xhr.open('GET', '/inverteddigits?useInvertedDigits=' + invertedValue, true);
-      xhr.send();
     }
 
     var lastBrightValue = brightSlider.value;
     var brightSend = true;
 
     function setBright() {
-      var value = brightSlider.value;
       brightValue.innerHTML = value;
 
-      if (value != lastBrightValue && brightSend) {
+      if (brightSlider.value != lastBrightValue && brightSend) {
         setTimeout(function () { sendBright(); }, 150);
         brightSend = false;
       }
     }
 
     function sendBright() {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/brightness?brightness=' + brightSlider.value, true);
-      xhr.send();
-      lastSentValue = brightSlider.value;
+      sendRequest("/brightness?", "brightness=" + brightSlider.value);
+      lastBrightValue = brightSlider.value;
       brightSend = true;
     }
 
-    function toggleAutoBrightness() {
-      var status = autoBrightnessCheckbox.checked ? 1 : 0;
+    var lastVelocityValue = velocitySlider.value;
+    var velocitySend = true;
 
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/autobrightness?status=' + status, true);
-      xhr.send();
+    function setVelocity(){
+      if (velocitySlider.value != lastVelocityValue && velocitySend) {
+        setTimeout(function () { sendVelocity(); }, 150);
+        velocitySend = false;
+      }
     }
 
-    function getRoomBrightness() {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/getbrightness', true);
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          var brightnessValue = JSON.parse(xhr.responseText).brightness;
-          document.getElementById('currentBrightness').textContent = brightnessValue;
-        }
-      };
-      xhr.send();
+    function sendVelocity() {
+      sendRequest("/velocity?", "velocity=" + velocitySlider.value);
+      lastVelocityValue = velocitySlider.value;
+      velocitySend = true;
     }
 
     function setTimerMode() {
@@ -282,21 +235,14 @@
         document.querySelector('.countdown-activated').style.display = timerModeSelector.value === '2' ? 'block' : 'none';
       }
 
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/timermode?mode=' + timerModeSelector.value, true);
-      xhr.send();
+      sendRequest("/timermode?", "mode=" + timerModeSelector.value);
     }
 
     function startPauseTimer() {
-      var xhr = new XMLHttpRequest();
       startPauseTimerValue = startPauseTimerValue === 1 ? 0 : 1;
 
-      if (startPauseTimerValue == 1)
-        xhr.open('GET', '/starttimer', true);
-      else
-        xhr.open('GET', '/pausetimer', true);
+      startPauseTimerValue == 1 ? sendRequest("/starttimer") : sendRequest("/pausetimer");
 
-      xhr.send();
       updateStartPauseTimerButtonLabel(startPauseTimerValue);
     }
 
@@ -307,33 +253,7 @@
     function stopTimer() {
       startPauseTimerValue = 0;
       updateStartPauseTimerButtonLabel(startPauseTimerValue);
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/stoptimer', true);
-      xhr.send();
-    }
-
-    function setCountdown() {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/setcountdown?min=' + countdownMinutes.value + '&sec=' + countdownSeconds.value, true);
-      xhr.send();
-    }
-
-    function setWifiConfig() {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/wifi?ssid=' + wifiSSID.value + '&password=' + wifiPassword.value, true);
-      xhr.send();
-    }
-
-    function resetDefault() {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/resetdefault', true);
-      xhr.send();
-    }
-    
-    function resetWifi() {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '/resetwifi', true);
-      xhr.send();
+      sendRequest("/stoptimer");
     }
 
     function loadConfig() {
@@ -344,10 +264,10 @@
           var config = JSON.parse(xhr.responseText);
 
           velocitySlider.value = config.refreshVelocity;
-          velocityValue.textContent = config.refreshVelocity;
           invertedValue = parseInt(config.useInvertedDigits);
           colorModeSelector.value = parseInt(config.colorMode);
           document.querySelector('.color-static').style.display = colorModeSelector.value === '0' ? 'block' : 'none';
+          document.querySelector('.velocity').style.display = colorModeSelector.value !== '0' ? 'block' : 'none';
 
           var color = parseInt(config.color);
           colorSlider.value = color;
@@ -379,8 +299,14 @@
     }
 
     window.onload = loadConfig;
-    // Actualizar cada segundo (1000 milisegundos)
-    setInterval(getRoomBrightness, 2500);
+
+    function sendRequest(endpoint, ...params) {
+      var url = endpoint + params.join('&');
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.send();
+    }
+
   </script>
 
 </body>
