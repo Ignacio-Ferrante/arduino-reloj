@@ -1,3 +1,4 @@
+#include "core_esp8266_features.h"
 #include "constants.h"
 
 void handleRoot() {
@@ -125,6 +126,20 @@ void setCountDown() {
   server.send(200);
 }
 
+void soundTimbre() {
+  printAllSegments(17, 255);
+  delay(250);
+  turnOffAllSegments();
+  delay(250);
+  printAllSegments(17, 255);
+  delay(250);
+  turnOffAllSegments();
+  delay(250);
+  printAllSegments(17, 255);
+  delay(250);
+  server.send(200, "text/plain", "Sonando");
+}
+
 void resetDefault() {
   wipeEEPROM();
   globalConfig = defaultConfig;
@@ -155,6 +170,7 @@ void initServer() {
   server.on("/pausetimer", setPauseTimer);
   server.on("/stoptimer", setStopTimer);
   server.on("/setcountdown", setCountDown);
+  server.on("/timbre", soundTimbre);
 
   server.on("/resetdefault", resetDefault);
 

@@ -116,9 +116,12 @@ void showNumer(int number) {
 void printAllSegments(int color, int bright) {
   for (int i = 0; i < LED_COUNT; i++)
     leds[i] = CHSV(color, 255, bright);
+  FastLED.show();
+  FastLED.show();
 }
 
 void turnOffAllSegments() {
   FastLED.clear();
+  FastLED.show();
   FastLED.show();
 }

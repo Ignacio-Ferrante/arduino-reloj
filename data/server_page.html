@@ -188,11 +188,11 @@
       colorVisualizer.style.backgroundColor = 'hsl(' + color * 1.41 + ', 100%, 50%)';
     }
 
-    var lastBrightValue = brightSlider.value;
+    var lastBrightValue = 0;
     var brightSend = true;
 
     function setBright() {
-      brightValue.innerHTML = value;
+      brightValue.innerHTML = brightSlider.value;
 
       if (brightSlider.value != lastBrightValue && brightSend) {
         setTimeout(function () { sendBright(); }, 150);
@@ -206,7 +206,7 @@
       brightSend = true;
     }
 
-    var lastVelocityValue = velocitySlider.value;
+    var lastVelocityValue = 0;
     var velocitySend = true;
 
     function setVelocity(){
