@@ -29,6 +29,10 @@ void setWifi() {
 }
 
 void resetWifi() {
+  printAllSegments(globalConfig.color, 255);
+  delay(1000);
+  turnOffAllSegments();
+  delay(250);
   forceUpdateTime();
   WiFi.begin(globalConfig.ssid, globalConfig.password);
   server.send(200, "text/plain", "Conectando al WiFi" + globalConfig.ssid + " : " + globalConfig.password);
@@ -127,20 +131,15 @@ void setCountDown() {
 }
 
 void soundTimbre() {
-  printAllSegments(17, 255);
-  delay(250);
-  turnOffAllSegments();
-  delay(250);
-  printAllSegments(17, 255);
-  delay(250);
-  turnOffAllSegments();
-  delay(250);
-  printAllSegments(17, 255);
-  delay(250);
+  sound();
   server.send(200, "text/plain", "Sonando");
 }
 
 void resetDefault() {
+  printAllSegments(17, 255);
+  delay(1000);
+  turnOffAllSegments();
+  delay(250);
   wipeEEPROM();
   globalConfig = defaultConfig;
   forceUpdateTime();

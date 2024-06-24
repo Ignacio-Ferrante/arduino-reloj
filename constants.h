@@ -69,4 +69,6 @@ void showNumer(int number);
 void printAllSegments(int color, int bright);
 void turnOffAllSegments();
 
+void sound();
+
 #endif
