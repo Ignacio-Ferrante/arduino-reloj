@@ -70,5 +70,6 @@ void printAllSegments(int color, int bright);
 void turnOffAllSegments();
 
 void sound();
+void reconectWifi();
 
 #endif

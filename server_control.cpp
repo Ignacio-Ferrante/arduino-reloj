@@ -21,11 +21,9 @@ void getConfigs() {
 void setWifi() {
   globalConfig.ssid = server.arg("ssid");
   globalConfig.password = server.arg("password");
-
   saveConfig();
-  forceUpdateTime();
-  WiFi.begin(globalConfig.ssid, globalConfig.password);
-  server.send(200, "text/plain", "Conectando al WiFi" + globalConfig.ssid + " : " + globalConfig.password);
+
+  reconectWifi();
 }
 
 void resetWifi() {
@@ -33,9 +31,8 @@ void resetWifi() {
   delay(1000);
   turnOffAllSegments();
   delay(250);
-  forceUpdateTime();
-  WiFi.begin(globalConfig.ssid, globalConfig.password);
-  server.send(200, "text/plain", "Conectando al WiFi" + globalConfig.ssid + " : " + globalConfig.password);
+  
+  reconectWifi();
 }
 
 void setVelocity() {
@@ -131,8 +128,8 @@ void setCountDown() {
 }
 
 void soundTimbre() {
-  sound();
   server.send(200, "text/plain", "Sonando");
+  sound();
 }
 
 void resetDefault() {
@@ -142,10 +139,9 @@ void resetDefault() {
   delay(250);
   wipeEEPROM();
   globalConfig = defaultConfig;
-  forceUpdateTime();
   saveConfig();
-  WiFi.begin(defaultConfig.ssid, defaultConfig.password);
-  server.send(200, "text/plain", "Conectando al WiFi" + globalConfig.ssid + " : " + globalConfig.password);
+  
+  reconectWifi();
 }
 
 void initServer() {
@@ -175,7 +171,6 @@ void initServer() {
 
   server.begin();
 }
-
 
 String getJsonConfigs(configs config, bool showWifiData) {
   DynamicJsonDocument jsonObject(JSON_OBJECT_SIZE(19));

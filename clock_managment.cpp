@@ -2,22 +2,30 @@
 
 unsigned long lastSync;
 bool isUpdated = false;
+unsigned long lastConnectionTry;
 
 bool shouldUpdate() {
-  return !isUpdated || millis() - lastSync > 10 * 60 * 1000; //10m
+  return !isUpdated || millis() - lastSync > 10 * 60 * 1000;  //10m
 }
 
 void updateTime() {
   hours = hour();
   minutes = minute();
 
-  if (WiFi.status() == WL_CONNECTED && shouldUpdate()) {
-    lastSync = millis();
-    timeClient.update();
-    hours = timeClient.getHours();
-    minutes = timeClient.getMinutes();
-    setTime(hours, minutes, timeClient.getSeconds(), 1, 1, 2024);
-    isUpdated = true;
+  if (WiFi.status() == WL_CONNECTED) {
+    if (shouldUpdate()) {
+      lastSync = millis();
+      timeClient.update();
+      hours = timeClient.getHours();
+      minutes = timeClient.getMinutes();
+      setTime(hours, minutes, timeClient.getSeconds(), 1, 1, 2024);
+      isUpdated = true;
+    }
+  } else {
+    if (millis() - lastConnectionTry > 4 * 60 * 1000) {
+      WiFi.begin(globalConfig.ssid, globalConfig.password);
+      lastConnectionTry = millis();
+    }
   }
 }
 
