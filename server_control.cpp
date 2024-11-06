@@ -139,9 +139,9 @@ void resetDefault() {
   delay(250);
   wipeEEPROM();
   globalConfig = defaultConfig;
-  saveConfig();
-  
+
   reconectWifi();
+  saveConfig();
 }
 
 void initServer() {

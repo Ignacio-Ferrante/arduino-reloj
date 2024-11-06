@@ -23,7 +23,7 @@ void updateTime() {
     }
   } else {
     if (millis() - lastConnectionTry > 4 * 60 * 1000) {
-      WiFi.begin(globalConfig.ssid, globalConfig.password);
+      reconectWifi();
       lastConnectionTry = millis();
     }
   }

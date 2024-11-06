@@ -5,13 +5,12 @@ void reconectWifi() {
   
   WiFi.begin(globalConfig.ssid, globalConfig.password);
 
-  int count = 0;
-
-  for (int i = 0; i < 30; i++) {
-    if (WiFi.status() == WL_CONNECTED)
+  for (int i = 1; i < 100; i++) {
+    if (WiFi.status() == WL_CONNECTED) {
+      forceUpdateTime();
       break;
-    else {
-      if (count % 3 != 0)
+    } else {
+      if (i % 3 != 0)
         printAllSegments(50, 255);
       else
         turnOffAllSegments();
@@ -19,6 +18,4 @@ void reconectWifi() {
       delay(300);
     }
   }
-
-  forceUpdateTime();
 }
