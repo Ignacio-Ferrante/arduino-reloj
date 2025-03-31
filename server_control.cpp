@@ -2,20 +2,19 @@
 #include "constants.h"
 
 void handleRoot() {
-  LittleFS.begin();
-
   File file = LittleFS.open("/server_page.html", "r");
 
-  if (file)
+  if (file) {
     server.streamFile(file, "text/html");
-  else
+  } else {
     server.send(404, "text/plain", "Archivo HTML no encontrado");
+  }
 
   file.close();
 }
 
 void getConfigs() {
-  server.send(200, "application/json", getJsonConfigs(globalConfig, false));
+  server.send(200, "application/json", getStringJsonConfigs(globalConfig, false, true));
 }
 
 void setWifi() {
@@ -27,11 +26,8 @@ void setWifi() {
 }
 
 void resetWifi() {
-  printAllSegments(globalConfig.color, 255);
-  delay(1000);
-  turnOffAllSegments();
-  delay(250);
-  
+  blink(RESET_WIFI_COLOR, 1);
+
   reconectWifi();
 }
 
@@ -66,11 +62,13 @@ void setBrightness() {
 
 void setAutoBrightness() {
   globalConfig.autoBrightness = server.arg("status").toInt() == 0 ? false : true;
+  saveConfig();
   server.send(200);
 }
 
 void setNightTimeEnabled() {
   globalConfig.nightTimeEnabled = server.arg("status").toInt() == 0 ? false : true;
+  saveConfig();
   server.send(200);
 }
 
@@ -82,7 +80,7 @@ void setNightTimeRange() {
 }
 
 void getbrightness() {
-  DynamicJsonDocument jsonObject(JSON_OBJECT_SIZE(2));
+  DynamicJsonDocument jsonObject(4096);
   jsonObject["brightness"] = map(analogRead(LIGHT_SENSOR_PIN), 0, 1024, 0, 100);
 
   String jsonStr;
@@ -133,15 +131,9 @@ void soundTimbre() {
 }
 
 void resetDefault() {
-  printAllSegments(17, 255);
-  delay(1000);
-  turnOffAllSegments();
-  delay(250);
-  wipeEEPROM();
-  globalConfig = defaultConfig;
-
+  blink(RESET_DEFAULT_COLOR, 2);
   reconectWifi();
-  saveConfig();
+  resetDefaultConfig();
 }
 
 void initServer() {
@@ -170,31 +162,4 @@ void initServer() {
   server.on("/resetdefault", resetDefault);
 
   server.begin();
-}
-
-String getJsonConfigs(configs config, bool showWifiData) {
-  DynamicJsonDocument jsonObject(JSON_OBJECT_SIZE(19));
-  if (showWifiData) {
-    jsonObject["ssid"] = config.ssid;
-    jsonObject["password"] = config.password;
-  }
-  jsonObject["refreshVelocity"] = map(config.refreshVelocity, 1, 100, 100, 1);
-  jsonObject["useInvertedDigits"] = config.useInvertedDigits;
-  jsonObject["color"] = config.color;
-  jsonObject["colorMode"] = config.colorMode;
-  jsonObject["brightness"] = map(config.brightness, 50, 255, 1, 100);
-  jsonObject["autoBrightness"] = config.autoBrightness;
-  jsonObject["nightTimeEnabled"] = config.nightTimeEnabled;
-  jsonObject["nightTimeRange"][0] = config.nightTimeRange[0];
-  jsonObject["nightTimeRange"][1] = config.nightTimeRange[1];
-  jsonObject["nightTimeRange"][2] = config.nightTimeRange[2];
-  jsonObject["nightTimeRange"][3] = config.nightTimeRange[3];
-  jsonObject["timerMode"] = config.timerMode;
-  jsonObject["isTimerActive"] = isTimerActive();
-  jsonObject["countdownMinutes"] = config.countdownMinutes;
-  jsonObject["countdownSeconds"] = config.countdownSeconds;
-
-  String jsonStr;
-  serializeJson(jsonObject, jsonStr);
-  return jsonStr;
 }

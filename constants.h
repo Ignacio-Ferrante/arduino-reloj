@@ -12,12 +12,19 @@
 #include <LittleFS.h>
 #include <EEPROM.h>
 #include <ArduinoJson.h>
+#include "core_esp8266_features.h"
 
 #define SEGMENT_LED_QUANTITY 2
 #define DOT_LED_QUANTITY 2
 #define LED_COUNT 60
 #define LED_PIN 16 // D0
 #define LIGHT_SENSOR_PIN A0
+
+#define ERROR_CONFIG_COLOR 1
+#define CREATE_CONFIG_COLOR 30
+#define RESET_WIFI_COLOR 113
+#define RECONECT_WIFI_COLOR 200
+#define RESET_DEFAULT_COLOR 70
 
 extern ESP8266WebServer server;
 extern WiFiUDP ntpUDP;
@@ -57,18 +64,20 @@ void startTimer();
 void pauseTimer();
 void stopTimer();
 
-String getJsonConfigs(configs config, bool showWifiData);
 void initServer();
 
-void initializeEEPROM();
+void initializeFileSystem();
+void loadConfig();
 void saveConfig();
-void wipeEEPROM();
+void resetDefaultConfig();
+DynamicJsonDocument getJsonConfigs(configs config, bool showWifiData, bool transformForServer);
+String getStringJsonConfigs(configs config, bool showWifiData, bool transformForServer);
 
 void showTime(int hour, int minutes);
 void showNumer(int number);
 void printAllSegments(int color, int bright);
 void turnOffAllSegments();
-
+void blink(int color, int times);
 void sound();
 void reconectWifi();
 

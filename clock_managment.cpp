@@ -18,7 +18,7 @@ void updateTime() {
       timeClient.update();
       hours = timeClient.getHours();
       minutes = timeClient.getMinutes();
-      setTime(hours, minutes, timeClient.getSeconds(), 1, 1, 2024);
+      setTime(hours, minutes, timeClient.getSeconds(), 1, 1, 2025);
       isUpdated = true;
     }
   } else {

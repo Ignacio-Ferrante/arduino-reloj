@@ -16,4 +16,5 @@ void loop() {
 
   server.handleClient();
   ElegantOTA.loop();
+  MDNS.update();
 }
