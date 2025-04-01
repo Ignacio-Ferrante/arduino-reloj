@@ -19,11 +19,25 @@ int getBrightness() {
 }
 
 bool isNightTime() {
-  int currentMinutes = hours * 60 + minutes;
-  int startMinutes = globalConfig.nightTimeRange[0] * 60 + globalConfig.nightTimeRange[1];
-  int endMinutes = globalConfig.nightTimeRange[2] * 60 + globalConfig.nightTimeRange[3];
+  // int currentMinutes = hours * 60 + minutes;
+  // int startMinutes = globalConfig.nightTimeRange[0] * 60 + globalConfig.nightTimeRange[1];
+  // int endMinutes = globalConfig.nightTimeRange[2] * 60 + globalConfig.nightTimeRange[3];
   
-  bool isTime = currentMinutes >= startMinutes && currentMinutes < endMinutes;
+  // bool isTime = currentMinutes >= startMinutes && currentMinutes < endMinutes;
+  int startHour = globalConfig.nightTimeRange[0];
+  int startMinute = globalConfig.nightTimeRange[1];
+  int endHour = globalConfig.nightTimeRange[2];
+  int endMinute = globalConfig.nightTimeRange[3];
+
+  bool isTime;
+
+  if (startHour == endHour) {
+    isTime = (hours == startHour) && (minutes >= startMinute) && (minutes < endMinute);
+  } else if (startHour < endHour) {
+    isTime = (hours > startHour || (hours == startHour && minutes >= startMinute)) && (hours < endHour || (hours == endHour && minutes < endMinute));
+  } else {
+    isTime = (hours > startHour || (hours == startHour && minutes >= startMinute)) || (hours < endHour || (hours == endHour && minutes < endMinute));
+  }
     
   return globalConfig.nightTimeEnabled && isTime;
 }
