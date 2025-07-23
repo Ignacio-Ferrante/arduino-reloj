@@ -22,7 +22,7 @@ void updateTime() {
       isUpdated = true;
     }
   } else {
-    if (millis() - lastConnectionTry > 4 * 60 * 1000) {
+    if (millis() - lastConnectionTry > 120 * 60 * 1000) {
       reconectWifi();
       lastConnectionTry = millis();
     }

@@ -72,6 +72,7 @@ void saveConfig();
 void resetDefaultConfig();
 DynamicJsonDocument getJsonConfigs(configs config, bool showWifiData, bool transformForServer);
 String getStringJsonConfigs(configs config, bool showWifiData, bool transformForServer);
+void updateServerPage(String page);
 
 void showTime(int hour, int minutes);
 void showNumer(int number);

@@ -136,6 +136,17 @@ void resetDefault() {
   resetDefaultConfig();
 }
 
+void handleUpdateServerPage() {
+  if (server.method() == HTTP_POST && server.hasArg("plain")) {
+    String page = server.arg("plain");
+    updateServerPage(page);
+    saveConfig();
+    server.send(200, "application/json", "{\"success\":true}");
+  } else {
+    server.send(400, "application/json", "{\"error\":\"Invalid Request\"}");
+  }
+}
+
 void initServer() {
   server.on("/", handleRoot);
 
@@ -160,6 +171,8 @@ void initServer() {
   server.on("/timbre", soundTimbre);
 
   server.on("/resetdefault", resetDefault);
+  
+  server.on("/updateServerPage", HTTP_POST, handleUpdateServerPage);
 
   server.begin();
 }

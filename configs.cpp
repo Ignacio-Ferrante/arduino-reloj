@@ -137,3 +137,14 @@ void loadConfig() {
   Serial.println("Configuración cargada desde " + configFilePath);
   Serial.println("Json cargado: " + getStringJsonConfigs(globalConfig, true, false));
 }
+
+void updateServerPage(String newPageString) {
+  File pageFile = LittleFS.open("/server_page.html", "w");
+  if (pageFile) {
+    pageFile.print(newPageString);
+    pageFile.close();
+    Serial.println("server_page guardado correctamente.");
+  } else {
+    Serial.println("Error al guardar server_page.");
+  }
+}

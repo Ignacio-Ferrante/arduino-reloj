@@ -11,7 +11,7 @@ void reconectWifi() {
       break;
     } else {
       if (i % 3 != 0)
-        printAllSegments(RECONECT_WIFI_COLOR, 255);
+        printAllSegments(RECONECT_WIFI_COLOR, 30);
       else
         turnOffAllSegments();
 
